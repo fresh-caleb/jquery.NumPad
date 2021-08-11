@@ -11,8 +11,8 @@
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 		<!-- jQuery.NumPad -->
-		<script src="file:///C:/temp/webpage_to_test_jquery_numpad/jquery.numpad.js"></script>
-		<link rel="stylesheet" href="file:///C:/temp/webpage_to_test_jquery_numpad/jquery.numpad.css">
+		<script src="../../jquery.numpad.js"></script>
+		<link rel="stylesheet" href="../../jquery.numpad.css">
 		<script type="text/javascript">
 			// Set NumPad defaults for jQuery mobile. 
 			// These defaults will be applied to all NumPads within this document!
@@ -42,8 +42,8 @@
 				
 				$('#numpad4column .qtyInput').numpad();
 				
-				$('#numpad4column tr').on('click', function(e){
-					$(this).find('.qtyInput').numpad('open');
+				$('#numpad4column tr').on('click', (e) => {
+					$(e.delegateTarget).find('.qtyInput').numpad_open();
 				});
 			});
 		</script>
@@ -53,17 +53,17 @@
 			
 			/* Some custom styling for Bootstrap */
 			.qtyInput {display: block;
-			  width: 100%;
-			  padding: 6px 12px;
-			  color: #555;
-			  background-color: white;
-			  border: 1px solid #ccc;
-			  border-radius: 4px;
-			  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-			  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-			  -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
-			  -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
-			  transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+				width: 100%;
+				padding: 6px 12px;
+				color: #555;
+				background-color: white;
+				border: 1px solid #ccc;
+				border-radius: 4px;
+				-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+				box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+				-webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+				-o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+				transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 			}
 		</style>
 	</head>
