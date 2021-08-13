@@ -203,7 +203,7 @@ class JQueryNumpad {
 		);
 
 		// Create the backdrop of the numpad - an overlay for the main page
-		newElement.append($(options.backgroundTpl).addClass('nmpd-overlay').click(() => { newElement._numpad_close(); }));
+		newElement.append($(options.backgroundTpl).addClass('nmpd-overlay').click(() => { this._numpad_close(); }));
 
 		newElement.append(table);
 
