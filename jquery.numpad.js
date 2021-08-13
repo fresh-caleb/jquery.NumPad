@@ -114,7 +114,9 @@ class JQueryNumpad {
 
 		this._numpad_initialize();
 
-		JQueryNumpad.makeDraggable(this.find('.nmpd-grid'), '.numpad-header');
+		if(this.options.draggable){
+			JQueryNumpad.makeDraggable(this.find('.nmpd-grid'), '.numpad-header');
+		}
 	}
 
 	_numpad_initialize = () => {
@@ -412,49 +414,19 @@ class JQueryNumpad {
 		return element;
 	}
 
-	static defaults = {
-		appendKeypadTo: false,
-		decimalSeparator: '.',
-
-		html_button_functionButton: '<button></button>',
-		html_button_numberButton: '<button></button>',
-		html_div_background: '<div></div>',
-		html_input_display: '<input type="text" />',
-		html_label_headerContent: null,
-		html_table_mainLayout: '<table></table>',
-		html_td_mainLayoutButtonCell: '<td></td>',
-		html_td_mainLayoutDisplayCell: '<td colspan="4"></td>',
-		html_tr_mainLayoutTableRow: '<tr></tr>',
-		
-		hideDecimalButton: false,
-		hidePlusMinusButton: false,
-
-		isRequiredNumeric: true,
-		
-		openOnEvent: 'click',
-		
-		position: 'fixed',
-		/** may be 'left', 'right', 'center', or a number */
-		positionX: 'center',
-		/** may be 'top', 'bottom', 'middle', or a number */
-		positionY: 'middle',
-
-		target: null,
-		
-		textCancel: 'Cancel',
-		textClear: 'Clear',
-		textDelete: 'Del',
-		textDone: 'Done',
-		
-		onKeypadCreate: () => {},
-		onKeypadOpen: () => {},
-		onKeypadClose: () => {},
-		onChange: () => {},
-	};
-
 	static makeDraggable = (element, headerSelector) => {
 		let start = {x: 0, y: 0};
 		let delta = { x: 0, y: 0};
+
+		let headers = element.find(headerSelector);
+
+		if (headers.length > 0) {
+			headers.first().on('mousedown', startDragging);
+			headers.first().on('touchstart', startDragging);
+		} else {
+			element.on('mousedown', startDragging);
+			element.addEventListener('touchstart', startDragging);
+		}
 
 		let startDragging = (e) => {
 			e = e || window.event;
@@ -503,15 +475,46 @@ class JQueryNumpad {
 			document.removeEventListener('touchend', stopDragging);
 			document.removeEventListener('touchmove', moveElementWithTouch);
 		}
-
-		let headers = element.find(headerSelector);
-
-		if (headers.length > 0) {
-			headers.first().on('mousedown', startDragging);
-			headers.first().on('touchstart', startDragging);
-		} else {
-			element.on('mousedown', startDragging);
-			element.addEventListener('touchstart', startDragging);
-		}
 	}
+
+	static defaults = {
+		appendKeypadTo: false,
+		decimalSeparator: '.',
+		draggable: true,
+
+		html_button_functionButton: '<button></button>',
+		html_button_numberButton: '<button></button>',
+		html_div_background: '<div></div>',
+		html_input_display: '<input type="text" />',
+		html_label_headerContent: null,
+		html_table_mainLayout: '<table></table>',
+		html_td_mainLayoutButtonCell: '<td></td>',
+		html_td_mainLayoutDisplayCell: '<td colspan="4"></td>',
+		html_tr_mainLayoutTableRow: '<tr></tr>',
+		
+		hideDecimalButton: false,
+		hidePlusMinusButton: false,
+
+		isRequiredNumeric: true,
+		
+		openOnEvent: 'click',
+		
+		position: 'fixed',
+		/** may be 'left', 'right', 'center', or a number */
+		positionX: 'center',
+		/** may be 'top', 'bottom', 'middle', or a number */
+		positionY: 'middle',
+
+		target: null,
+		
+		textCancel: 'Cancel',
+		textClear: 'Clear',
+		textDelete: 'Del',
+		textDone: 'Done',
+		
+		onKeypadCreate: () => {},
+		onKeypadOpen: () => {},
+		onKeypadClose: () => {},
+		onChange: () => {},
+	};
 }
