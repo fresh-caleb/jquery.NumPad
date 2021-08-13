@@ -10,7 +10,7 @@
    
 	The MIT License (MIT)
 
-	Copyright (c) 2014-2015 almasaeed2010
+	Original work: Copyright (c) 2014-2015 almasaeed2010
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -33,13 +33,13 @@
 /**
  * jQuery.NumPad
  *
- * Copyright (c) 2015 Andrej Kabachnik
+ * Original Work: Copyright (c) 2015 Andrej Kabachnik
  *
  * Licensed under the MIT license:
  * http://www.opensource.org/licenses/mit-license.php
  *
  * Project home:
- * https://github.com/kabachello/jQuery.NumPad
+ * https://github.com/FeIronMonkey/jQuery.NumPad
  *
  * Version: 1.4
  *
