@@ -188,16 +188,9 @@ class JQueryNumpad {
 				})))
 		).append(
 			$(options.html_tr_mainLayoutTableRow)
-				.append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_functionButton).html('&plusmn;').addClass('negate-button').click(() => {
-					let currentValue = this.numpad_display.val();
-					this.numpad_setValue((currentValue.startsWith('-')
-						? currentValue.substring(1, currentValue.length)
-						: '-' + currentValue));
-				})))
+				.append($(options.html_td_mainLayoutButtonCell).append(this._numpad_getDashOrMinusButton(options)))
 				.append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_numberButton).html(0).addClass('numero')))
-				.append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_functionButton).html(options.decimalSeparator).addClass('decimal-separator-button').click(() => {
-					this.numpad_setValue(this.numpad_display.val() + options.decimalSeparator);
-				})))
+				.append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_functionButton).html(options.decimalSeparator).addClass('decimal-separator-button').click(this._numpad_handleCharacterButtonClick)))
 				.append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_functionButton).html(options.textDone).addClass('done')))
 		);
 
@@ -207,6 +200,17 @@ class JQueryNumpad {
 		newElement.append(table);
 
 		return newElement;
+	}
+
+	_numpad_getDashOrMinusButton = (options) => this.isRequiredNumeric
+		? $(options.html_button_functionButton).html('&plusmn;').addClass('negate-button').click(this._numpad_handleNegateButtonClick)
+		: $(options.html_button_functionButton).html('-').addClass('negate-button').click(this._numpad_handleCharacterButtonClick)
+
+	_numpad_handleNegateButtonClick = (event) => {
+		let currentValue = this.numpad_display.val();
+		this.numpad_setValue((currentValue.startsWith('-')
+			? currentValue.substring(1, currentValue.length)
+			: '-' + currentValue));
 	}
 
 	_numpad_showOrHideButtons = () => {
@@ -263,7 +267,7 @@ class JQueryNumpad {
 		value = this._numpad_cutStringLengthToMaximumAllowed(value);
 		let nonnumericAllowedValues = ['', '-', this.options.decimalSeparator, `-${this.options.decimalSeparator}`];
 
-		if (!this._numpad_isValueNumeric(value) && !nonnumericAllowedValues.includes(value)) {
+		if (this.options.isRequiredNumeric && !this._numpad_isValueNumeric(value) && !nonnumericAllowedValues.includes(value)) {
 			return;
 		}
 
@@ -355,7 +359,6 @@ class JQueryNumpad {
 		$('#' + this.numpad_id + ' .done').off('click');
 		$('#' + this.numpad_id + ' .done').one('click', () => { this._numpad_accept(target); });
 
-		// Finally trigger numpad.open
 		this.trigger('numpad.open');
 
 		return this;
@@ -372,10 +375,10 @@ class JQueryNumpad {
 				x = posX;
 			}
 			else if (posX === 'left') {
-				x = 0;
+				x = ($(window).width() / 4) - (element.outerWidth() / 2);
 			}
 			else if (posX === 'right') {
-				x = $(window).width() - element.outerWidth();
+				x = ($(window).width() / 4 * 3) - (element.outerWidth() / 2);
 			}
 			else if (posX === 'center') {
 				x = ($(window).width() / 2) - (element.outerWidth() / 2);
@@ -387,10 +390,10 @@ class JQueryNumpad {
 				y = posY;
 			}
 			if (posY === 'top') {
-				y = 0;
+				y = ($(window).height() / 4) - (element.outerHeight() / 2);
 			}
 			else if (posY === 'bottom') {
-				y = $(window).height() - element.outerHeight();
+				y = ($(window).height() / 4 * 3) - (element.outerHeight() / 2);
 			}
 			else if (posY === 'middle') {
 				y = ($(window).height() / 2) - (element.outerHeight() / 2);
@@ -417,6 +420,8 @@ class JQueryNumpad {
 		
 		hideDecimalButton: false,
 		hidePlusMinusButton: false,
+
+		isRequiredNumeric: true,
 		
 		openOnEvent: 'click',
 		
