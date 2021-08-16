@@ -113,6 +113,10 @@ class JQueryNumpad {
 		$.extend(this, numberPadElement);
 
 		this._numpad_initialize();
+
+		if(this.options.draggable){
+			JQueryNumpad.makeDraggable(this.find('.nmpd-grid'), '.numpad-header');
+		}
 	}
 
 	_numpad_initialize = () => {
@@ -148,13 +152,18 @@ class JQueryNumpad {
 	_numpad_constructNewNumberPadElement = (id, options) => {
 		let newElement = $('<div id="' + id + '"></div>').addClass('nmpd-wrapper');
 
-		/** @var display jQuery object representing the display of the numpad (typically an input field) */
-		let display = $(options.html_input_display).addClass('nmpd-display');
-		newElement.numpad_display = display;
-
 		/** @var grid jQuery object containing the grid for the numpad: the display, the buttons, etc. */
 		let table = $(options.html_table_mainLayout).addClass('nmpd-grid');
 		newElement.grid = table;
+
+		let header = $(options.html_label_headerContent);
+
+		table.append($(options.html_tr_mainLayoutTableRow)
+			.append($(options.html_td_mainLayoutDisplayCell).append(header)).addClass('numpad-header'));
+
+		/** @var display jQuery object representing the display of the numpad (typically an input field) */
+		let display = $(options.html_input_display).addClass('nmpd-display');
+		newElement.numpad_display = display;
 
 		table.append($(options.html_tr_mainLayoutTableRow)
 			.append($(options.html_td_mainLayoutDisplayCell)
@@ -364,11 +373,11 @@ class JQueryNumpad {
 		return this;
 	};
 
-	static positionElement = (element, mode, posX, posY) => {
+	static positionElement = (element, positionMode, posX, posY) => {
 		var x = 0;
 		var y = 0;
 
-		if (mode === 'fixed') {
+		if (positionMode === 'fixed') {
 			element.css('position', 'fixed');
 			
 			if ($.type(posX) === 'number') {
@@ -389,7 +398,7 @@ class JQueryNumpad {
 			if ($.type(posY) === 'number') {
 				y = posY;
 			}
-			if (posY === 'top') {
+			else if (posY === 'top') {
 				y = ($(window).height() / 4) - (element.outerHeight() / 2);
 			}
 			else if (posY === 'bottom') {
@@ -405,14 +414,79 @@ class JQueryNumpad {
 		return element;
 	}
 
+	static makeDraggable = (element, headerSelector) => {
+		let start = {x: 0, y: 0};
+		let delta = { x: 0, y: 0};
+
+		let startDragging = (e) => {
+			e = e || window.event;
+			e.preventDefault();
+
+			start.x = e.clientX;
+			start.y = e.clientY;
+
+			$(document).on('mouseup', stopDragging);
+			$(document).on('mousemove', moveElementWithCursor);
+
+			document.addEventListener('touchend', stopDragging, false);
+			document.addEventListener('touchmove', moveElementWithTouch, false);
+		}
+	  
+		let moveElementWithCursor = (e) => {
+			e = e || window.event;
+			e.preventDefault();
+
+			delta.x = start.x - e.clientX;
+			delta.y = start.y - e.clientY;
+
+			start.x = e.clientX;
+			start.y = e.clientY;
+
+			element.css({top: element.position().top - delta.y, left: element.position().left - delta.x});
+		}
+	  
+		let moveElementWithTouch = (e) => {
+			e = e || window.event;
+			e.preventDefault();
+
+			delta.x = start.x - e.touches[0].pageX;
+			delta.y = start.y - e.touches[0].pageY;
+
+			start.x = e.touches[0].pageX;
+			start.y = e.touches[0].pageY;
+
+			element.css({top: element.position().top - delta.y, left: element.position().left - delta.x});
+		}
+	  
+		let stopDragging = () => {
+			$(document).off('mouseup');
+			$(document).off('mousemove');
+
+			document.removeEventListener('touchend', stopDragging);
+			document.removeEventListener('touchmove', moveElementWithTouch);
+		}		
+		
+		let headers = element.find(headerSelector);
+
+		if (headers.length > 0) {
+			headers.first().on('mousedown', startDragging);
+			headers.first().on('touchstart', startDragging);
+		} else {
+			element.on('mousedown', startDragging);
+			element.addEventListener('touchstart', startDragging);
+		}
+	}
+
 	static defaults = {
 		appendKeypadTo: false,
 		decimalSeparator: '.',
+		draggable: true,
 
 		html_button_functionButton: '<button></button>',
 		html_button_numberButton: '<button></button>',
 		html_div_background: '<div></div>',
 		html_input_display: '<input type="text" />',
+		html_label_headerContent: null,
 		html_table_mainLayout: '<table></table>',
 		html_td_mainLayoutButtonCell: '<td></td>',
 		html_td_mainLayoutDisplayCell: '<td colspan="4"></td>',
