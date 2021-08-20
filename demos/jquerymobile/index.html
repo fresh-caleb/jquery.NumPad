@@ -26,9 +26,9 @@
 			$(document).on('pageshow', function(){
 				$('#text-basic').numpad();
 				$('#password').numpad({
-					displayTpl: '<input data-theme="b" type="password" />',
-					hidePlusMinusButton: true,
-					hideDecimalButton: true
+					html_input_display: '<input data-theme="b" type="password" />',
+					isPlusMinusButtonVisible: false,
+					isDecimalButtonVisible: false,	
 				});
 				$('#numpadButton-btn').numpad({
 					target: $('#numpadButton'),
