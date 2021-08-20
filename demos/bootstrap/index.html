@@ -16,11 +16,11 @@
 		<script type="text/javascript">
 			// Set NumPad defaults for jQuery mobile. 
 			// These defaults will be applied to all NumPads within this document!
-			JQueryNumpad.defaults.gridTpl = '<table class="table modal-content"></table>';
-			JQueryNumpad.defaults.backgroundTpl = '<div class="modal-backdrop in"></div>';
-			JQueryNumpad.defaults.displayTpl = '<input type="text" class="form-control" />';
-			JQueryNumpad.defaults.buttonNumberTpl =  '<button type="button" class="btn btn-default"></button>';
-			JQueryNumpad.defaults.buttonFunctionTpl = '<button type="button" class="btn" style="width: 100%;"></button>';
+			JQueryNumpad.defaults.html_table_mainLayout = '<table class="table modal-content"></table>';
+			JQueryNumpad.defaults.html_div_background = '<div class="modal-backdrop in"></div>';
+			JQueryNumpad.defaults.html_input_display = '<input type="text" class="form-control" />';
+			JQueryNumpad.defaults.html_button_numberButton =  '<button type="button" class="btn btn-default"></button>';
+			JQueryNumpad.defaults.html_button_functionButton = '<button type="button" class="btn" style="width: 100%;"></button>';
 			JQueryNumpad.defaults.decimalSeparator = '.';
 			JQueryNumpad.defaults.onKeypadCreate = function(){$(this).find('.done').addClass('btn-primary');};
 			
@@ -29,9 +29,9 @@
 				$('#text-basic').numpad();
 
 				$('#password').numpad({
-					displayTpl: '<input class="form-control" type="password" />',
-					hidePlusMinusButton: true,
-					hideDecimalButton: true	
+					html_input_display: '<input class="form-control" type="password" />',
+					isPlusMinusButtonVisible: false,
+					isDecimalButtonVisible: false,	
 				});
 				
 				$('#numpadButton-btn').numpad({
