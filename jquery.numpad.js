@@ -45,6 +45,10 @@
  *
  */
  (function ($) {
+	 /** 
+	  * @function numpad
+	  * @param {object} options - The non-default options for the numpad.  Instance members should correlate with members of `JQueryNumpad.defaults`.  Supplied values override the defaults.  Undefined values are ignored.
+	  */
 	$.fn.numpad = function (options) {
 		options = $.extend({}, JQueryNumpad.defaults, options);
 
@@ -115,8 +119,10 @@ class JQueryNumpad {
 		this._numpad_initialize();
 
 		if(this.options.draggable){
-			JQueryNumpad.makeDraggable(this.find('.nmpd-grid'), '.numpad-header');
+			JQueryNumpad.makeDraggable(this.find('.nmpd-grid'), this.find('.numpad-header'));
 		}
+
+		this.trigger('numpad.create');
 	}
 
 	_numpad_initialize = () => {
@@ -125,8 +131,6 @@ class JQueryNumpad {
 		this._numpad_appendToTarget();
 
 		$('#' + this.numpad_id + ' .numero').bind('click', this._numpad_handleCharacterButtonClick);
-
-		this.trigger('numpad.create');
 	}
 
 	numpad_display = {};
@@ -223,11 +227,11 @@ class JQueryNumpad {
 	}
 
 	_numpad_showOrHideButtons = () => {
-		if (this.options.hidePlusMinusButton) {
+		if (!this.options.isPlusMinusButtonVisible) {
 			this.find('.negate-button').hide();
 		}
 
-		if (this.options.hideDecimalButton) {
+		if (!this.options.isDecimalButtonVisible) {
 			this.find('.decimal-separator-button').hide();
 		}
 	}
@@ -288,23 +292,30 @@ class JQueryNumpad {
 	};
 
 	_numpad_cutStringLengthToMaximumAllowed = (value) => {
-		let maxLengthExcludingSpecialCharacters = this.numpad_display.attr('maxLength');
+		let maxLengthAttribute = this.numpad_display.attr('maxLength');
 
-		if (!maxLengthExcludingSpecialCharacters) {
+		if (!maxLengthAttribute) {
 			return value;
 		}
 
-		let specialCharactersCount = 0;
+		let maxLength;
+		
+		if(this.options.isRequiredNumeric){
+			let specialCharactersCount = 0;
 
-		if (value.includes(this.options.decimalSeparator)) {
-			specialCharactersCount++;
+			if (value.includes(this.options.decimalSeparator)) {
+				specialCharactersCount++;
+			}
+
+			if (value.includes('-')) {
+				specialCharactersCount++;
+			}
+
+			maxLength = parseInt(maxLengthAttribute) + specialCharactersCount;
 		}
-
-		if (value.includes('-')) {
-			specialCharactersCount++;
+		else {
+			maxLength = parseInt(maxLengthAttribute);
 		}
-
-		let maxLength = parseInt(maxLengthExcludingSpecialCharacters) + specialCharactersCount;
 
 		return value.toString().substr(0, maxLength)
 	}
@@ -410,11 +421,19 @@ class JQueryNumpad {
 
 			element.css('top', y);
 		}
+		else if (positionMode === 'relative'){
+
+		}
 
 		return element;
 	}
 
-	static makeDraggable = (element, headerSelector) => {
+	/**
+	 * Makes an element draggable.
+	 * @param {object} element - A jQuery object representing the element to drag around.
+	 * @param {object} dragHandleElement - A jQuery object representing the element the user "grabs" to initiate dragging.
+	 */
+	static makeDraggable = (element, dragHandleElement) => {
 		let start = {x: 0, y: 0};
 		let delta = { x: 0, y: 0};
 
@@ -422,8 +441,8 @@ class JQueryNumpad {
 			e = e || window.event;
 			e.preventDefault();
 
-			start.x = e.clientX;
-			start.y = e.clientY;
+			start = {x: e.clientX, y: e.clientY};
+			delta = { x: 0, y: 0};
 
 			$(document).on('mouseup', stopDragging);
 			$(document).on('mousemove', moveElementWithCursor);
@@ -436,13 +455,10 @@ class JQueryNumpad {
 			e = e || window.event;
 			e.preventDefault();
 
-			delta.x = start.x - e.clientX;
-			delta.y = start.y - e.clientY;
+			delta.x = e.clientX - start.x;
+			delta.y = e.clientY - start.y;
 
-			start.x = e.clientX;
-			start.y = e.clientY;
-
-			element.css({top: element.position().top - delta.y, left: element.position().left - delta.x});
+			element.css({transform: `translate(${delta.x}px, ${delta.y}px)`});
 		}
 	  
 		let moveElementWithTouch = (e) => {
@@ -464,57 +480,113 @@ class JQueryNumpad {
 
 			document.removeEventListener('touchend', stopDragging);
 			document.removeEventListener('touchmove', moveElementWithTouch);
+
+			element.css('transform', ``);
+			element.css({top: element.position().top + delta.y, left: element.position().left + delta.x});
 		}		
 		
-		let headers = element.find(headerSelector);
-
-		if (headers.length > 0) {
-			headers.first().on('mousedown', startDragging);
-			headers.first().on('touchstart', startDragging);
+		if (dragHandleElement && dragHandleElement.length > 0) {
+			dragHandleElement.on('mousedown', startDragging);
+			dragHandleElement.on('touchstart', startDragging);
 		} else {
 			element.on('mousedown', startDragging);
 			element.addEventListener('touchstart', startDragging);
 		}
 	}
 
+	static positionModes = {
+		fixed: 'fixed',
+		relative: 'relative',
+	}
+
+	
 	static defaults = {
-		appendKeypadTo: false,
+		/** @type {object} - A jQuery object representing the HTML element to append the numpad to.  If null, the numpad will be appended to the document body. */
+		appendKeypadTo: null,
+		
+		/** @type {string} - The character used to indicate the separation between a number's whole and fractional parts. It should match what is expected for the locale of the website (',' in Germany, '.' in the United States, for example).*/
 		decimalSeparator: '.',
+
+		/** @type {boolean} - Indicates whether the user should be able to drag the numpad around on the screen. Draggable if true, statically positioned if false.*/
 		draggable: true,
 
+		
+		/** @type {string} The template HTML for the function buttons.  Add CSS classes or styling to customize the appearance.*/
 		html_button_functionButton: '<button></button>',
+		
+		/** @type {string} The template HTML for the number buttons.  Add CSS classes or styling to customize the appearance.*/
 		html_button_numberButton: '<button></button>',
+		
+		/** @type {string} The template HTML for the background mask.  No background mask will appear if left as default.  With Bootstrap, `'<div class="modal-backdrop in"></div>'` turns it into a background mask.*/
 		html_div_background: '<div></div>',
+		
+		/** @type {string} The template HTML for the display on the numpad.  Add CSS classes or styling to customize the appearance.*/
 		html_input_display: '<input type="text" />',
+		
+		/** @type {string} The template HTML for the header.  HTML element, `<Label>` is expected.  For example, `'<label>Input Field Title</label>'`*/
 		html_label_headerContent: null,
+		
+		/** @type {string} The template HTML for the table which organizes all visible elements in the numpad.  Add CSS classes or styling to customize the appearance.*/
 		html_table_mainLayout: '<table></table>',
+		
+		/** @type {string} The template HTML for the table cells which house the buttons.  Add CSS classes or styling to customize the appearance.*/
 		html_td_mainLayoutButtonCell: '<td></td>',
+		
+		/** @type {string} The template HTML for the table cells which houses the header and display.  Add CSS classes or styling to customize the appearance.*/
 		html_td_mainLayoutDisplayCell: '<td colspan="4"></td>',
+		
+		/** @type {string} The template HTML for the rows in the table.  Add CSS classes or styling to customize the appearance.*/
 		html_tr_mainLayoutTableRow: '<tr></tr>',
 		
-		hideDecimalButton: false,
-		hidePlusMinusButton: false,
 
+		/** @type {boolean} */
+		isDecimalButtonVisible: true,
+		
+		/** @type {boolean} */
+		isPlusMinusButtonVisible: true,
+
+		/** @type {boolean} - If true, only allows input which can be parsed as a number.  False allows values like '23.3.4-357'*/
 		isRequiredNumeric: true,
 		
+		/** @type {string} - The event on which the numpad should be opened.*/
 		openOnEvent: 'click',
 		
-		position: 'fixed',
-		/** may be 'left', 'right', 'center', or a number */
+		/** @type {string} - Must be one of `JQueryNumpad.positionModes`*/
+		position: JQueryNumpad.positionModes.fixed,
+		
+		/** @type {(string | number)} - May be 'left', 'right', 'center', or a number */
 		positionX: 'center',
-		/** may be 'top', 'bottom', 'middle', or a number */
+		
+		/** @type {(string | number)} - May be 'top', 'bottom', 'middle', or a number */
 		positionY: 'middle',
 
+		/** @type {object} The element which the numpad will set the value of.  If null, the target will be the object on which `.numpad()` was called.*/
 		target: null,
 		
+
+		/** The text for the Cancel button. */
 		textCancel: 'Cancel',
+
+		/** The text for the Clear button. */
 		textClear: 'Clear',
+		
+		/** The text for the Del button. */
 		textDelete: 'Del',
+		
+		/** The text for the Done button. */
 		textDone: 'Done',
 		
+		
+		/** Triggers immediately after the numpad is created.*/
 		onKeypadCreate: () => {},
+
+		/** Triggers immediately after the numpad is opened.*/
 		onKeypadOpen: () => {},
+
+		/** Triggers immediately after the numpad is closed, regardless of how the user closed it.*/
 		onKeypadClose: () => {},
+		
+		/** Triggers immediately after the numpad is opened.*/
 		onChange: () => {},
 	};
 }
