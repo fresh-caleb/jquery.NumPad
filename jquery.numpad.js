@@ -195,7 +195,7 @@ class JQueryNumpad {
 	   let display = $(options.html_input_display).addClass('nmpd-display');
 	   newElement.numpad_display = display;
 
-	   table.append($(options.html_tr_mainLayoutTableRow)
+	   table.append((options.isDisplayVisible ? $(options.html_tr_mainLayoutTableRow) : $(options.html_tr_mainLayoutTableRow).css({display:'none'}))
 		   .append($(options.html_td_mainLayoutDisplayCell)
 			   .append(display)
 			   .append($('<input type="hidden" class="dirty" value="0"></input>'))));
@@ -610,6 +610,9 @@ class JQueryNumpad {
 	   /** @type {boolean} */
 	   isPlusMinusButtonVisible: true,
 
+	   /** @type {boolean} */
+	   isDisplayVisible: true,
+
 	   /** @type {boolean} - If true, only allows input which can be parsed as a number.  False allows values like '23.3.4-357'*/
 	   isRequiredNumeric: true,
 	   
@@ -651,7 +654,7 @@ class JQueryNumpad {
 	   /** Triggers immediately after the numpad is closed, regardless of how the user closed it.*/
 	   onKeypadClose: () => {},
 	   
-	   /** Triggers immediately after the numpad is opened.*/
-	   onChange: () => {},
+	   /** Triggers immediately after the numpad's value is changed. @param {object} event is the triggered event. @param {string} value is the new value after the change.*/
+	   onChange: (event) => {},
    };
 }
