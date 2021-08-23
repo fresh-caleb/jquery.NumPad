@@ -132,11 +132,11 @@
 * many of these functions are written as if the constructed object is merged with a jquery object (using find() and such)
 * */
 class JQueryNumpad {
-	static numpadIdCounter = 0;
+	static _numpadIdCounter = 0;
 
    constructor(options) {
 	   this.options = options;
-	   this.numpad_id = `nmpd${JQueryNumpad.numpadIdCounter++}`;
+	   this.numpad_id = `nmpd${JQueryNumpad._numpadIdCounter++}`;
 
 	   let numberPadElement = this._numpad_constructNewNumberPadElement(this.numpad_id, this.options);
 
@@ -400,7 +400,7 @@ class JQueryNumpad {
 
 	   this.show()
 	   JQueryNumpad.cursorFocus(this.find('.cancel'));
-	   JQueryNumpad.positionElement(this.find('.nmpd-grid'), this.options.position, this.options.positionX, this.options.positionY);
+	   this._numpad_positionElement(target);
 
 	   $('#' + this.numpad_id + ' .done').off('click');
 	   $('#' + this.numpad_id + ' .done').one('click', () => { this._numpad_accept(target); });
@@ -410,49 +410,88 @@ class JQueryNumpad {
 	   return this;
    };
 
-   static positionElement = (element, positionMode, posX, posY) => {
-	   var x = 0;
-	   var y = 0;
+   _numpad_positionElement = (target) => {
+	   let position = {top: 0, left: 0};
+	   let grid = this.find('.nmpd-grid');
 
-	   if (positionMode === 'fixed') {
-		   element.css('position', 'fixed');
-		   
-		   if ($.type(posX) === 'number') {
-			   x = posX;
-		   }
-		   else if (posX === 'left') {
-			   x = ($(window).width() / 4) - (element.outerWidth() / 2);
-		   }
-		   else if (posX === 'right') {
-			   x = ($(window).width() / 4 * 3) - (element.outerWidth() / 2);
-		   }
-		   else if (posX === 'center') {
-			   x = ($(window).width() / 2) - (element.outerWidth() / 2);
-		   }
-
-		   element.css('left', x);
-
-		   if ($.type(posY) === 'number') {
-			   y = posY;
-		   }
-		   else if (posY === 'top') {
-			   y = ($(window).height() / 4) - (element.outerHeight() / 2);
-		   }
-		   else if (posY === 'bottom') {
-			   y = ($(window).height() / 4 * 3) - (element.outerHeight() / 2);
-		   }
-		   else if (posY === 'middle') {
-			   y = ($(window).height() / 2) - (element.outerHeight() / 2);
-		   }
-
-		   element.css('top', y);
+	   if (this.options.position === 'fixed') {
+			position = this._numpad_calculateAbsolutePositioning(grid);
 	   }
-	   else if (positionMode === 'relative'){
-
+	   else if (this.options.position === 'relative'){
+		   position = this._numpad_calculateRelativePositioning(target, grid);
 	   }
 
-	   return element;
+	   grid.css('position', 'fixed');
+	   grid.css('left', position.left);
+	   grid.css('top', position.top);
+
+	   return this;
    }
+
+   _numpad_calculateAbsolutePositioning = (grid) => {
+		let position = {top: 0, left: 0};
+	
+		if ($.type(this.options.positionX) === 'number') {
+			position.left = this.options.positionX;
+		}
+		else if (this.options.positionX === 'left') {
+			position.left = ($(window).width() / 4) - (grid.outerWidth() / 2);
+		}
+		else if (this.options.positionX === 'right') {
+			position.left = ($(window).width() / 4 * 3) - (grid.outerWidth() / 2);
+		}
+		else if (this.options.positionX === 'center') {
+			position.left = ($(window).width() / 2) - (grid.outerWidth() / 2);
+		}
+
+		if ($.type(this.options.positionY) === 'number') {
+			position.top = this.options.positionY;
+		}
+		else if (this.options.positionY === 'top') {
+			position.top = ($(window).height() / 4) - (grid.outerHeight() / 2);
+		}
+		else if (this.options.positionY === 'bottom') {
+			position.top = ($(window).height() / 4 * 3) - (grid.outerHeight() / 2);
+		}
+		else if (this.options.positionY === 'middle') {
+			position.top = ($(window).height() / 2) - (grid.outerHeight() / 2);
+		}
+		
+		return position;
+	}
+
+	_numpad_calculateRelativePositioning = (target, grid) => {
+		const displacement = 5;
+		let position = {top: 0, left: 0};
+	
+		if ($.type(this.options.positionX) === 'number') {
+			position.left = target.offset().left + this.options.positionX;
+		}
+		else if (this.options.positionX === 'left') {
+			position.left = target.offset().left - grid.outerWidth() - displacement;
+		}
+		else if (this.options.positionX === 'right') {
+			position.left = target.offset().left + target.outerWidth() + displacement;
+		}
+		else if (this.options.positionX === 'center') {
+			position.left = (target.offset().left + target.outerWidth() / 2) - (grid.outerWidth() / 2);
+		}
+	
+		if ($.type(this.options.positionY) === 'number') {
+			position.top = target.offset().top + this.options.positionY;
+		}
+		else if (this.options.positionY === 'top') {
+			position.top = target.offset().top - grid.outerHeight() - displacement;
+		}
+		else if (this.options.positionY === 'bottom') {
+			position.top = target.offset().top + target.outerHeight() + displacement;
+		}
+		else if (this.options.positionY === 'middle') {
+			position.top = (target.offset().top + target.outerHeight() / 2) - (grid.outerHeight() / 2);
+		}
+
+		return position;
+	}
 
    /**
 	* Makes an element draggable.
@@ -577,7 +616,7 @@ class JQueryNumpad {
 	   /** @type {string} - The event on which the numpad should be opened.*/
 	   openOnEvent: 'click',
 	   
-	   /** @type {string} - Must be one of `JQueryNumpad.positionModes`*/
+	   /** @type {string} - Must be one of `JQueryNumpad.positionModes`.  If 'fixed', will position the numpad relative to the document top, left.  If 'relative', will position the numpad relative to the target.*/
 	   position: JQueryNumpad.positionModes.fixed,
 	   
 	   /** @type {(string | number)} - May be 'left', 'right', 'center', or a number */
