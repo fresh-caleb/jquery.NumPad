@@ -1,5 +1,5 @@
 /*
-	This file was forked from https://github.com/kabachello/jQuery.NumPad
+	This project was forked from https://github.com/kabachello/jQuery.NumPad
 		with the license shown below.
    
 	This license only applies to this file and others from the same project, which
@@ -148,7 +148,7 @@ class JQueryNumpad {
 		   JQueryNumpad.makeDraggable(this.find('.nmpd-grid'), this.find('.numpad-header'));
 	   }
 
-	   this.trigger('numpad.create');
+	   this.trigger('numpad.create', [this]);
    }
 
    _numpad_initialize = () => {
@@ -186,17 +186,18 @@ class JQueryNumpad {
 	   let table = $(options.html_table_mainLayout).addClass('nmpd-grid');
 	   newElement.grid = table;
 
-	   let header = $(options.html_label_headerContent);
+	   const columnWidthOfGrid = 4;
 
+	   let header = $(options.html_label_headerContent);
 	   table.append($(options.html_tr_mainLayoutTableRow)
-		   .append($(options.html_td_mainLayoutDisplayCell).append(header)).addClass('numpad-header'));
+		   .append($(options.html_td_mainLayoutHeaderCell).append(header).attr('colspan', columnWidthOfGrid)).addClass('numpad-header'));
 
 	   /** @var display jQuery object representing the display of the numpad (typically an input field) */
 	   let display = $(options.html_input_display).addClass('nmpd-display');
 	   newElement.numpad_display = display;
 
 	   table.append((options.isDisplayVisible ? $(options.html_tr_mainLayoutTableRow) : $(options.html_tr_mainLayoutTableRow).css({display:'none'}))
-		   .append($(options.html_td_mainLayoutDisplayCell)
+		   .append($(options.html_td_mainLayoutDisplayCell).attr('colspan', columnWidthOfGrid)
 			   .append(display)
 			   .append($('<input type="hidden" class="dirty" value="0"></input>'))));
 
@@ -241,7 +242,7 @@ class JQueryNumpad {
 	   return newElement;
    }
 
-   _numpad_getDashOrMinusButton = (options) => this.isRequiredNumeric
+   _numpad_getDashOrMinusButton = (options) => options.isRequiredNumeric
 	   ? $(options.html_button_functionButton).html('&plusmn;').addClass('negate-button').click(this._numpad_handleNegateButtonClick)
 	   : $(options.html_button_functionButton).html('-').addClass('negate-button').click(this._numpad_handleCharacterButtonClick)
 
@@ -281,9 +282,19 @@ class JQueryNumpad {
    }
 
    numpad_getValue = () => {
-	   return this._numpad_isValueNumeric(this.numpad_display.val())
-		   ? parseFloat(this._numpad_normalizeDecimalSeparator(this.numpad_display.val()))
-		   : 0;
+		let currentValue = this.numpad_display.val();
+
+		if(currentValue === ''){
+			return '';
+		}
+
+	   if(this.options.isRequiredNumeric){
+		   return this._numpad_isValueNumeric(this.numpad_display.val())
+			   ? parseFloat(this._numpad_normalizeDecimalSeparator(this.numpad_display.val())).toString()
+			   : '0';
+	   }
+	   
+	   return this.numpad_display.val();
    };
 
    _numpad_isValueNumeric = (obj) => {
@@ -586,7 +597,7 @@ class JQueryNumpad {
 	   html_div_background: '<div></div>',
 	   
 	   /** @type {string} The template HTML for the display on the numpad.  Add CSS classes or styling to customize the appearance.*/
-	   html_input_display: '<input type="text" />',
+	   html_input_display: '<input type="text"/>',
 	   
 	   /** @type {string} The template HTML for the header.  HTML element, `<Label>` is expected.  For example, `'<label>Input Field Title</label>'`*/
 	   html_label_headerContent: null,
@@ -597,8 +608,11 @@ class JQueryNumpad {
 	   /** @type {string} The template HTML for the table cells which house the buttons.  Add CSS classes or styling to customize the appearance.*/
 	   html_td_mainLayoutButtonCell: '<td></td>',
 	   
-	   /** @type {string} The template HTML for the table cells which houses the header and display.  Add CSS classes or styling to customize the appearance.*/
-	   html_td_mainLayoutDisplayCell: '<td colspan="4"></td>',
+	   /** @type {string} The template HTML for the table cell which houses the display.  Add CSS classes or styling to customize the appearance.*/
+	   html_td_mainLayoutDisplayCell: '<td></td>',
+	   
+	   /** @type {string} The template HTML for the table cell which houses the header.  Add CSS classes or styling to customize the appearance.*/
+	   html_td_mainLayoutHeaderCell: '<td class="nmpd-table-header-cell"></td>',
 	   
 	   /** @type {string} The template HTML for the rows in the table.  Add CSS classes or styling to customize the appearance.*/
 	   html_tr_mainLayoutTableRow: '<tr></tr>',
@@ -645,7 +659,7 @@ class JQueryNumpad {
 	   textDone: 'Done',
 	   
 	   
-	   /** Triggers immediately after the numpad is created.*/
+	   /** Triggers immediately after the numpad is created. The first parameter is the triggered event args.  The second parameter is the numpad as a jQuery object.*/
 	   onKeypadCreate: () => {},
 
 	   /** Triggers immediately after the numpad is opened.*/
