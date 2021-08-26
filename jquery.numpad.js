@@ -472,30 +472,30 @@ class JQueryNumpad {
 	}
 
 	_numpad_calculateRelativePositioning = (target, grid) => {
-		const displacement = 5;
-		let position = {top: 0, left: 0};
-	
+		const relativeOffset = this.options.positionRelativeOffset;
+		let position = { top: 0, left: 0 };
+
 		if ($.type(this.options.positionX) === 'number') {
 			position.left = target.offset().left + this.options.positionX;
 		}
 		else if (this.options.positionX === 'left') {
-			position.left = target.offset().left - grid.outerWidth() - displacement;
+			position.left = target.offset().left - grid.outerWidth() - relativeOffset;
 		}
 		else if (this.options.positionX === 'right') {
-			position.left = target.offset().left + target.outerWidth() + displacement;
+			position.left = target.offset().left + target.outerWidth() + relativeOffset;
 		}
 		else if (this.options.positionX === 'center') {
 			position.left = (target.offset().left + target.outerWidth() / 2) - (grid.outerWidth() / 2);
 		}
-	
+
 		if ($.type(this.options.positionY) === 'number') {
 			position.top = target.offset().top + this.options.positionY;
 		}
 		else if (this.options.positionY === 'top') {
-			position.top = target.offset().top - grid.outerHeight() - displacement;
+			position.top = target.offset().top - grid.outerHeight() - relativeOffset;
 		}
 		else if (this.options.positionY === 'bottom') {
-			position.top = target.offset().top + target.outerHeight() + displacement;
+			position.top = target.offset().top + target.outerHeight() + relativeOffset;
 		}
 		else if (this.options.positionY === 'middle') {
 			position.top = (target.offset().top + target.outerHeight() / 2) - (grid.outerHeight() / 2);
@@ -641,6 +641,9 @@ class JQueryNumpad {
 	   
 	   /** @type {(string | number)} - May be 'top', 'bottom', 'middle', or a number */
 	   positionY: 'middle',
+
+	   /** @type {number} - If `position = JQueryNumpad.positionModes.relative` and `positionX` or `positionY` is set with any of the qualitative (ex. 'top' or 'left') options, this is he distance the numpad will be shown from the target. */
+	   positionRelativeOffset: 5,
 
 	   /** @type {object} The element which the numpad will set the value of.  If null, the target will be the object on which `.numpad()` was called.*/
 	   target: null,
