@@ -49,53 +49,53 @@
 	 * @function numpad
 	 * @param {object} options - The non-default options for the numpad.  Instance members should correlate with members of `JQueryNumpad.defaults`.  Supplied values override the defaults.  Undefined values are ignored.
 	 */
-   $.fn.numpad = function (options) {
-	   options = $.extend({}, JQueryNumpad.defaults, options);
+	$.fn.numpad = function (options) {
+		options = $.extend({}, JQueryNumpad.defaults, options);
 
-	   // Create a numpad. One for all elements in this jQuery selector.
-	   // Since numpad() can be called on multiple elements on one page, each call will create a unique numpad id.
-	   let id;
-	   let numberPadElement = {};
+		// Create a numpad. One for all elements in this jQuery selector.
+		// Since numpad() can be called on multiple elements on one page, each call will create a unique numpad id.
+		let id;
+		let numberPadElement = {};
 
-	   // "this" is a jQuery selecton, which might contain many matches.
-	   return this.each((_, numpadTarget) => {
-		   if ($(`#${id}`).length === 0) {
-			   numberPadElement = new JQueryNumpad(options);
-			   id = numberPadElement.numpad_id;
-		   }
+		// "this" is a jQuery selecton, which might contain many matches.
+		return this.each((_, numpadTarget) => {
+			if ($(`#${id}`).length === 0) {
+				numberPadElement = new JQueryNumpad(options);
+				id = numberPadElement.numpad_id;
+			}
 
-		   $.data(numpadTarget, 'numpad', numberPadElement);
+			$.data(numpadTarget, 'numpad', numberPadElement);
 
-		   $(numpadTarget).attr("readonly", true).attr('data-numpad', id).addClass('nmpd-target');
+			$(numpadTarget).attr("readonly", true).attr('data-numpad', id).addClass('nmpd-target');
 
-		   $(numpadTarget).bind(options.openOnEvent, () => {
-			   numberPadElement._numpad_open(options.target
-				   ? options.target
-				   : $(numpadTarget));
-		   });
-	   });
-   };
+			$(numpadTarget).bind(options.openOnEvent, () => {
+				numberPadElement._numpad_open(options.target
+					? options.target
+					: $(numpadTarget));
+			});
+		});
+	};
 
-   $.fn.numpad_open = function (initialValue) {
-	   this._numpad_getNumpadElement()._numpad_open(this.first(), initialValue);
-	   return this;
-   }
+	$.fn.numpad_open = function (initialValue) {
+		this._numpad_getNumpadElement()._numpad_open(this.first(), initialValue);
+		return this;
+	}
 
-   $.fn.numpad_close = function () {
-	   this._numpad_getNumpadElement()._numpad_close();
-	   return this;
-   }
+	$.fn.numpad_close = function () {
+		this._numpad_getNumpadElement()._numpad_close();
+		return this;
+	}
 
-   $.fn.numpad_accept = function () {
-	   this._numpad_getNumpadElement()._numpad_accept(this.first());
-	   return this;
-   }
+	$.fn.numpad_accept = function () {
+		this._numpad_getNumpadElement()._numpad_accept(this.first());
+		return this;
+	}
 
-   $.fn.numpad_unassignNumpadsFromElement = function () {
+	$.fn.numpad_unassignNumpadsFromElement = function () {
 		return this.each((_, numpadTargetAsDomElement) => {
 			let numpadTarget = $(numpadTargetAsDomElement)
-			
-			if(numpadTarget.attr('data-numpad')){
+
+			if (numpadTarget.attr('data-numpad')) {
 				numpadTarget.removeAttr('data-numpad', '');
 				numpadTarget.removeClass('nmpd-target');
 				numpadTarget.removeData('numpad');
@@ -106,7 +106,7 @@
 	$.fn.numpad_deleteNumpadFromDom = function () {
 		this.each((_, numpadTarget) => {
 			let numpad = $.data(numpadTarget, 'numpad');
-			if(numpad){
+			if (numpad) {
 				numpad.remove();
 			}
 		});
@@ -114,15 +114,15 @@
 		return this.numpad_unassignNumpadsFromElement();
 	}
 
-   $.fn._numpad_getNumpadElement = function () {
-	   let numberPadElement = $.data(this[0], 'numpad');
+	$.fn._numpad_getNumpadElement = function () {
+		let numberPadElement = $.data(this[0], 'numpad');
 
-	   if (!numberPadElement) {
-		   throw "Cannot act on a numpad prior to initialization!";
-	   }
+		if (!numberPadElement) {
+			throw "Cannot act on a numpad prior to initialization!";
+		}
 
-	   return numberPadElement;
-   }
+		return numberPadElement;
+	}
 })(jQuery);
 
 
@@ -134,340 +134,340 @@
 class JQueryNumpad {
 	static _numpadIdCounter = 0;
 
-   constructor(options) {
-	   this.options = options;
-	   this.numpad_id = `nmpd${JQueryNumpad._numpadIdCounter++}`;
+	constructor(options) {
+		this.options = options;
+		this.numpad_id = `nmpd${JQueryNumpad._numpadIdCounter++}`;
 
-	   let numberPadElement = this._numpad_constructNewNumberPadElement(this.numpad_id, this.options);
+		let numberPadElement = this._numpad_constructNewNumberPadElement(this.numpad_id, this.options);
 
-	   $.extend(this, numberPadElement);
+		jQuery.extend(this, numberPadElement);
 
-	   this._numpad_initialize();
+		this._numpad_initialize();
 
-	   if(this.options.draggable){
-		   JQueryNumpad.makeDraggable(this.find('.nmpd-grid'), this.find('.numpad-header'));
-	   }
+		if (this.options.draggable) {
+			JQueryNumpad.makeDraggable(this.find('.nmpd-grid'), this.find('.numpad-header'));
+		}
 
-	   this.trigger('numpad.create', [this]);
-   }
+		this.trigger('numpad.create', [this]);
+	}
 
-   _numpad_initialize = () => {
-	   this._numpad_showOrHideButtons();
-	   this._numpad_registerEvents();
-	   this._numpad_appendToTarget();
+	_numpad_initialize = () => {
+		this._numpad_showOrHideButtons();
+		this._numpad_registerEvents();
+		this._numpad_appendToTarget();
 
-	   $('#' + this.numpad_id + ' .numero').bind('click', this._numpad_handleCharacterButtonClick);
-   }
+		jQuery('#' + this.numpad_id + ' .numero').bind('click', this._numpad_handleCharacterButtonClick);
+	}
 
-   numpad_display = {};
+	numpad_display = {};
 
-   _numpad_handleCharacterButtonClick = (event) => {
-	   let newText = this.numpad_display.val().toString() + $(event.target).text();
-	   this.numpad_setValue(newText);
-   }
+	_numpad_handleCharacterButtonClick = (event) => {
+		let newText = this.numpad_display.val().toString() + jQuery(event.target).text();
+		this.numpad_setValue(newText);
+	}
 
-   _numpad_appendToTarget = () => {
-	   (this.options.appendKeypadTo 
-		   ? this.options.appendKeypadTo 
-		   : $(document.body))
-		   .append(this);
-   }
+	_numpad_appendToTarget = () => {
+		(this.options.appendKeypadTo
+			? this.options.appendKeypadTo
+			: jQuery(document.body))
+			.append(this);
+	}
 
-   static cursorFocus = (elem) => {
-	   var x = window.scrollX, y = window.scrollY;
-	   elem.focus();
-	   window.scrollTo(x, y);
-   }
+	static cursorFocus = (elem) => {
+		var x = window.scrollX, y = window.scrollY;
+		elem.focus();
+		window.scrollTo(x, y);
+	}
 
-   _numpad_constructNewNumberPadElement = (id, options) => {
-	   let newElement = $('<div id="' + id + '"></div>').addClass('nmpd-wrapper');
+	_numpad_constructNewNumberPadElement = (id, options) => {
+		let newElement = jQuery('<div id="' + id + '"></div>').addClass('nmpd-wrapper');
 
-	   /** @var grid jQuery object containing the grid for the numpad: the display, the buttons, etc. */
-	   let table = $(options.html_table_mainLayout).addClass('nmpd-grid');
-	   newElement.grid = table;
+		/** @var grid jQuery object containing the grid for the numpad: the display, the buttons, etc. */
+		let table = jQuery(options.html_table_mainLayout).addClass('nmpd-grid');
+		newElement.grid = table;
 
-	   const columnWidthOfGrid = 4;
+		const columnWidthOfGrid = 4;
 
-	   let header = $(options.html_label_headerContent);
-	   table.append($(options.html_tr_mainLayoutTableRow)
-		   .append($(options.html_td_mainLayoutHeaderCell).append(header).attr('colspan', columnWidthOfGrid)).addClass('numpad-header'));
+		let header = jQuery(options.html_label_headerContent);
+		table.append(jQuery(options.html_tr_mainLayoutTableRow)
+			.append(jQuery(options.html_td_mainLayoutHeaderCell).append(header).attr('colspan', columnWidthOfGrid)).addClass('numpad-header'));
 
-	   /** @var display jQuery object representing the display of the numpad (typically an input field) */
-	   let display = $(options.html_input_display).addClass('nmpd-display');
-	   newElement.numpad_display = display;
+		/** @var display jQuery object representing the display of the numpad (typically an input field) */
+		let display = jQuery(options.html_input_display).addClass('nmpd-display');
+		newElement.numpad_display = display;
 
-	   table.append((options.isDisplayVisible ? $(options.html_tr_mainLayoutTableRow) : $(options.html_tr_mainLayoutTableRow).css({display:'none'}))
-		   .append($(options.html_td_mainLayoutDisplayCell).attr('colspan', columnWidthOfGrid)
-			   .append(display)
-			   .append($('<input type="hidden" class="dirty" value="0"></input>'))));
+		table.append((options.isDisplayVisible ? jQuery(options.html_tr_mainLayoutTableRow) : jQuery(options.html_tr_mainLayoutTableRow).css({ display: 'none' }))
+			.append(jQuery(options.html_td_mainLayoutDisplayCell).attr('colspan', columnWidthOfGrid)
+				.append(display)
+				.append(jQuery('<input type="hidden" class="dirty" value="0"></input>'))));
 
-	   // Create rows and columns of the the grid with appropriate buttons
-	   table.append(
-		   $(options.html_tr_mainLayoutTableRow)
-			   .append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_numberButton).html(7).addClass('numero')))
-			   .append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_numberButton).html(8).addClass('numero')))
-			   .append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_numberButton).html(9).addClass('numero')))
-			   .append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_functionButton).html(options.textDelete).addClass('del').click(() => {
-				   this.numpad_setValue(this.numpad_getValue().toString().substring(0, this.numpad_getValue().toString().length - 1));
-			   })))
-	   ).append(
-		   $(options.html_tr_mainLayoutTableRow)
-			   .append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_numberButton).html(4).addClass('numero')))
-			   .append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_numberButton).html(5).addClass('numero')))
-			   .append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_numberButton).html(6).addClass('numero')))
-			   .append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_functionButton).html(options.textClear).addClass('clear').click(() => {
-				   this.numpad_setValue('');
-			   })))
-	   ).append(
-		   $(options.html_tr_mainLayoutTableRow)
-			   .append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_numberButton).html(1).addClass('numero')))
-			   .append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_numberButton).html(2).addClass('numero')))
-			   .append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_numberButton).html(3).addClass('numero')))
-			   .append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_functionButton).html(options.textCancel).addClass('cancel').click(() => {
-				   this._numpad_close();
-			   })))
-	   ).append(
-		   $(options.html_tr_mainLayoutTableRow)
-			   .append($(options.html_td_mainLayoutButtonCell).append(this._numpad_getDashOrMinusButton(options)))
-			   .append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_numberButton).html(0).addClass('numero')))
-			   .append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_functionButton).html(options.decimalSeparator).addClass('decimal-separator-button').click(this._numpad_handleCharacterButtonClick)))
-			   .append($(options.html_td_mainLayoutButtonCell).append($(options.html_button_functionButton).html(options.textDone).addClass('done')))
-	   );
+		// Create rows and columns of the the grid with appropriate buttons
+		table.append(
+			jQuery(options.html_tr_mainLayoutTableRow)
+				.append(jQuery(options.html_td_mainLayoutButtonCell).append(jQuery(options.html_button_numberButton).html(7).addClass('numero')))
+				.append(jQuery(options.html_td_mainLayoutButtonCell).append(jQuery(options.html_button_numberButton).html(8).addClass('numero')))
+				.append(jQuery(options.html_td_mainLayoutButtonCell).append(jQuery(options.html_button_numberButton).html(9).addClass('numero')))
+				.append(jQuery(options.html_td_mainLayoutButtonCell).append(jQuery(options.html_button_functionButton).html(options.textDelete).addClass('del').click(() => {
+					this.numpad_setValue(this.numpad_getValue().toString().substring(0, this.numpad_getValue().toString().length - 1));
+				})))
+		).append(
+			jQuery(options.html_tr_mainLayoutTableRow)
+				.append(jQuery(options.html_td_mainLayoutButtonCell).append(jQuery(options.html_button_numberButton).html(4).addClass('numero')))
+				.append(jQuery(options.html_td_mainLayoutButtonCell).append(jQuery(options.html_button_numberButton).html(5).addClass('numero')))
+				.append(jQuery(options.html_td_mainLayoutButtonCell).append(jQuery(options.html_button_numberButton).html(6).addClass('numero')))
+				.append(jQuery(options.html_td_mainLayoutButtonCell).append(jQuery(options.html_button_functionButton).html(options.textClear).addClass('clear').click(() => {
+					this.numpad_setValue('');
+				})))
+		).append(
+			jQuery(options.html_tr_mainLayoutTableRow)
+				.append(jQuery(options.html_td_mainLayoutButtonCell).append(jQuery(options.html_button_numberButton).html(1).addClass('numero')))
+				.append(jQuery(options.html_td_mainLayoutButtonCell).append(jQuery(options.html_button_numberButton).html(2).addClass('numero')))
+				.append(jQuery(options.html_td_mainLayoutButtonCell).append(jQuery(options.html_button_numberButton).html(3).addClass('numero')))
+				.append(jQuery(options.html_td_mainLayoutButtonCell).append(jQuery(options.html_button_functionButton).html(options.textCancel).addClass('cancel').click(() => {
+					this._numpad_close();
+				})))
+		).append(
+			jQuery(options.html_tr_mainLayoutTableRow)
+				.append(jQuery(options.html_td_mainLayoutButtonCell).append(this._numpad_getDashOrMinusButton(options)))
+				.append(jQuery(options.html_td_mainLayoutButtonCell).append(jQuery(options.html_button_numberButton).html(0).addClass('numero')))
+				.append(jQuery(options.html_td_mainLayoutButtonCell).append(jQuery(options.html_button_functionButton).html(options.decimalSeparator).addClass('decimal-separator-button').click(this._numpad_handleCharacterButtonClick)))
+				.append(jQuery(options.html_td_mainLayoutButtonCell).append(jQuery(options.html_button_functionButton).html(options.textDone).addClass('done')))
+		);
 
-	   // Create the backdrop of the numpad - an overlay for the main page
-	   newElement.append($(options.html_div_background).addClass('nmpd-overlay').click(() => { this._numpad_close(); }));
+		// Create the backdrop of the numpad - an overlay for the main page
+		newElement.append(jQuery(options.html_div_background).addClass('nmpd-overlay').click(() => { this._numpad_close(); }));
 
-	   newElement.append(table);
+		newElement.append(table);
 
-	   return newElement;
-   }
+		return newElement;
+	}
 
-   _numpad_getDashOrMinusButton = (options) => options.isRequiredNumeric
-	   ? $(options.html_button_functionButton).html('&plusmn;').addClass('negate-button').click(this._numpad_handleNegateButtonClick)
-	   : $(options.html_button_functionButton).html('-').addClass('negate-button').click(this._numpad_handleCharacterButtonClick)
+	_numpad_getDashOrMinusButton = (options) => options.isRequiredNumeric
+		? jQuery(options.html_button_functionButton).html('&plusmn;').addClass('negate-button').click(this._numpad_handleNegateButtonClick)
+		: jQuery(options.html_button_functionButton).html('-').addClass('negate-button').click(this._numpad_handleCharacterButtonClick)
 
-   _numpad_handleNegateButtonClick = (event) => {
-	   let currentValue = this.numpad_display.val();
-	   this.numpad_setValue((currentValue.startsWith('-')
-		   ? currentValue.substring(1, currentValue.length)
-		   : '-' + currentValue));
-   }
+	_numpad_handleNegateButtonClick = (event) => {
+		let currentValue = this.numpad_display.val();
+		this.numpad_setValue((currentValue.startsWith('-')
+			? currentValue.substring(1, currentValue.length)
+			: '-' + currentValue));
+	}
 
-   _numpad_showOrHideButtons = () => {
-	   if (!this.options.isPlusMinusButtonVisible) {
-		   this.find('.negate-button').hide();
-	   }
+	_numpad_showOrHideButtons = () => {
+		if (!this.options.isPlusMinusButtonVisible) {
+			this.find('.negate-button').hide();
+		}
 
-	   if (!this.options.isDecimalButtonVisible) {
-		   this.find('.decimal-separator-button').hide();
-	   }
-   }
+		if (!this.options.isDecimalButtonVisible) {
+			this.find('.decimal-separator-button').hide();
+		}
+	}
 
-   _numpad_registerEvents = () => {
-	   if (this.options.onKeypadCreate) {
-		   this.on('numpad.create', this.options.onKeypadCreate);
-	   }
+	_numpad_registerEvents = () => {
+		if (this.options.onKeypadCreate) {
+			this.on('numpad.create', this.options.onKeypadCreate);
+		}
 
-	   if (this.options.onKeypadOpen) {
-		   this.on('numpad.open', this.options.onKeypadOpen);
-	   }
+		if (this.options.onKeypadOpen) {
+			this.on('numpad.open', this.options.onKeypadOpen);
+		}
 
-	   if (this.options.onKeypadClose) {
-		   this.on('numpad.close', this.options.onKeypadClose);
-	   }
+		if (this.options.onKeypadClose) {
+			this.on('numpad.close', this.options.onKeypadClose);
+		}
 
-	   if (this.options.onChange) {
-		   this.on('numpad.change', this.options.onChange);
-	   }
-   }
+		if (this.options.onChange) {
+			this.on('numpad.change', this.options.onChange);
+		}
+	}
 
-   numpad_getValue = () => {
+	numpad_getValue = () => {
 		let currentValue = this.numpad_display.val();
 
-		if(currentValue === ''){
+		if (currentValue === '') {
 			return '';
 		}
 
-	   if(this.options.isRequiredNumeric){
-		   return this._numpad_isValueNumeric(this.numpad_display.val())
-			   ? parseFloat(this._numpad_normalizeDecimalSeparator(this.numpad_display.val())).toString()
-			   : '0';
-	   }
-	   
-	   return this.numpad_display.val();
-   };
+		if (this.options.isRequiredNumeric) {
+			return this._numpad_isValueNumeric(this.numpad_display.val())
+				? parseFloat(this._numpad_normalizeDecimalSeparator(this.numpad_display.val())).toString()
+				: '0';
+		}
 
-   _numpad_isValueNumeric = (obj) => {
-	   if (typeof obj === "string") {
-		   obj = this._numpad_normalizeDecimalSeparator(obj);
-	   }
+		return this.numpad_display.val();
+	};
 
-	   return !isNaN(parseFloat(obj)) && isFinite(obj);
-   };
+	_numpad_isValueNumeric = (obj) => {
+		if (typeof obj === "string") {
+			obj = this._numpad_normalizeDecimalSeparator(obj);
+		}
 
-   _numpad_normalizeDecimalSeparator = (obj) => {
-	   return obj.replace(this.options.decimalSeparator, '.');
-   }
+		return !isNaN(parseFloat(obj)) && isFinite(obj);
+	};
 
-   _numpad_localizeDecimalSeparator = (obj) => {
-	   return obj.replace('.', this.options.decimalSeparator);
-   }
+	_numpad_normalizeDecimalSeparator = (obj) => {
+		return obj.replace(this.options.decimalSeparator, '.');
+	}
 
-   numpad_setValue = (value) => {
-	   value = this._numpad_cutStringLengthToMaximumAllowed(value);
-	   let nonnumericAllowedValues = ['', '-', this.options.decimalSeparator, `-${this.options.decimalSeparator}`];
+	_numpad_localizeDecimalSeparator = (obj) => {
+		return obj.replace('.', this.options.decimalSeparator);
+	}
 
-	   if (this.options.isRequiredNumeric && !this._numpad_isValueNumeric(value) && !nonnumericAllowedValues.includes(value)) {
-		   return;
-	   }
+	numpad_setValue = (value) => {
+		value = this._numpad_cutStringLengthToMaximumAllowed(value);
+		let nonnumericAllowedValues = ['', '-', this.options.decimalSeparator, `-${this.options.decimalSeparator}`];
 
-	   this.numpad_display.val(value);
-	   this.find('.dirty').val('1');
-	   this.trigger('numpad.change', [value]);
+		if (this.options.isRequiredNumeric && !this._numpad_isValueNumeric(value) && !nonnumericAllowedValues.includes(value)) {
+			return;
+		}
 
-	   return this;
-   };
+		this.numpad_display.val(value);
+		this.find('.dirty').val('1');
+		this.trigger('numpad.change', [value]);
 
-   _numpad_cutStringLengthToMaximumAllowed = (value) => {
-	   let maxLengthAttribute = this.numpad_display.attr('maxLength');
+		return this;
+	};
 
-	   if (!maxLengthAttribute) {
-		   return value;
-	   }
+	_numpad_cutStringLengthToMaximumAllowed = (value) => {
+		let maxLengthAttribute = this.numpad_display.attr('maxLength');
 
-	   let maxLength;
-	   
-	   if(this.options.isRequiredNumeric){
-		   let specialCharactersCount = 0;
+		if (!maxLengthAttribute) {
+			return value;
+		}
 
-		   if (value.includes(this.options.decimalSeparator)) {
-			   specialCharactersCount++;
-		   }
+		let maxLength;
 
-		   if (value.includes('-')) {
-			   specialCharactersCount++;
-		   }
+		if (this.options.isRequiredNumeric) {
+			let specialCharactersCount = 0;
 
-		   maxLength = parseInt(maxLengthAttribute) + specialCharactersCount;
-	   }
-	   else {
-		   maxLength = parseInt(maxLengthAttribute);
-	   }
+			if (value.includes(this.options.decimalSeparator)) {
+				specialCharactersCount++;
+			}
 
-	   return value.toString().substr(0, maxLength)
-   }
+			if (value.includes('-')) {
+				specialCharactersCount++;
+			}
 
-   _numpad_accept = (target) => {
-	   let finalValue = this.numpad_getValue().toString().replace('.', this.options.decimalSeparator);
-	   let textToWrite = this._numpad_cutStringLengthToMaximumAllowed(finalValue)
+			maxLength = parseInt(maxLengthAttribute) + specialCharactersCount;
+		}
+		else {
+			maxLength = parseInt(maxLengthAttribute);
+		}
 
-	   if (target.prop("tagName") === 'INPUT') {
-		   target.val(textToWrite);
-	   }
-	   else {
-		   target.html(textToWrite);
-	   }
+		return value.toString().substr(0, maxLength)
+	}
 
-	   this._numpad_close();
+	_numpad_accept = (target) => {
+		let finalValue = this.numpad_getValue().toString().replace('.', this.options.decimalSeparator);
+		let textToWrite = this._numpad_cutStringLengthToMaximumAllowed(finalValue)
 
-	   if (target.prop("tagName") === 'INPUT') {
-		   target.trigger('change');
-	   }
+		if (target.prop("tagName") === 'INPUT') {
+			target.val(textToWrite);
+		}
+		else {
+			target.html(textToWrite);
+		}
 
-	   return this;
-   };
+		this._numpad_close();
 
-   _numpad_close = () => {
-	   this.hide();
-	   this.trigger('numpad.close');
-   }
+		if (target.prop("tagName") === 'INPUT') {
+			target.trigger('change');
+		}
 
-   _numpad_open = (target, initialValue) => {
-	   // Use nmpd.display.val to avoid triggering numpad.change for the initial value
-	   if (initialValue) {
-		   if (!this._numpad_isValueNumeric(initialValue)) {
-			   console.error("The initialValue is not numeric.  Unable to set value.  It must be numeric.");
-			   return;
-		   }
+		return this;
+	};
 
-		   this.numpad_display.val(initialValue);
-	   }
-	   else {
-		   if (target.prop("tagName") === 'INPUT') {
-			   this.numpad_display.val(target.val());
-			   this.numpad_display.attr('maxLength', target.attr('maxLength'));
-		   } else {
-			   let targetText = this._numpad_isValueNumeric(target.text())
-				   ? target.text()
-				   : '';
+	_numpad_close = () => {
+		this.hide();
+		this.trigger('numpad.close');
+	}
 
-			   targetText = this._numpad_localizeDecimalSeparator(targetText);
+	_numpad_open = (target, initialValue) => {
+		// Use nmpd.display.val to avoid triggering numpad.change for the initial value
+		if (initialValue) {
+			if (!this._numpad_isValueNumeric(initialValue)) {
+				console.error("The initialValue is not numeric.  Unable to set value.  It must be numeric.");
+				return;
+			}
 
-			   this.numpad_display.val(targetText);
-		   }
-	   }
+			this.numpad_display.val(initialValue);
+		}
+		else {
+			if (target.prop("tagName") === 'INPUT') {
+				this.numpad_display.val(target.val());
+				this.numpad_display.attr('maxLength', target.attr('maxLength'));
+			} else {
+				let targetText = this._numpad_isValueNumeric(target.text())
+					? target.text()
+					: '';
 
-	   $('#' + this.numpad_id + ' .dirty').val(0);
+				targetText = this._numpad_localizeDecimalSeparator(targetText);
 
-	   this.show()
-	   JQueryNumpad.cursorFocus(this.find('.cancel'));
-	   this._numpad_positionElement(target);
+				this.numpad_display.val(targetText);
+			}
+		}
 
-	   $('#' + this.numpad_id + ' .done').off('click');
-	   $('#' + this.numpad_id + ' .done').one('click', () => { this._numpad_accept(target); });
+		jQuery('#' + this.numpad_id + ' .dirty').val(0);
 
-	   this.trigger('numpad.open');
+		this.show()
+		JQueryNumpad.cursorFocus(this.find('.cancel'));
+		this._numpad_positionElement(target);
 
-	   return this;
-   };
+		jQuery('#' + this.numpad_id + ' .done').off('click');
+		jQuery('#' + this.numpad_id + ' .done').one('click', () => { this._numpad_accept(target); });
 
-   _numpad_positionElement = (target) => {
-	   let position = {top: 0, left: 0};
-	   let grid = this.find('.nmpd-grid');
+		this.trigger('numpad.open');
 
-	   if (this.options.position === 'fixed') {
+		return this;
+	};
+
+	_numpad_positionElement = (target) => {
+		let position = { top: 0, left: 0 };
+		let grid = this.find('.nmpd-grid');
+
+		if (this.options.position === 'fixed') {
 			position = this._numpad_calculateAbsolutePositioning(grid);
-	   }
-	   else if (this.options.position === 'relative'){
-		   position = this._numpad_calculateRelativePositioning(target, grid);
-	   }
+		}
+		else if (this.options.position === 'relative') {
+			position = this._numpad_calculateRelativePositioning(target, grid);
+		}
 
-	   grid.css('position', 'fixed');
-	   grid.css('left', position.left);
-	   grid.css('top', position.top);
+		grid.css('position', 'fixed');
+		grid.css('left', position.left);
+		grid.css('top', position.top);
 
-	   return this;
-   }
+		return this;
+	}
 
-   _numpad_calculateAbsolutePositioning = (grid) => {
-		let position = {top: 0, left: 0};
-	
-		if ($.type(this.options.positionX) === 'number') {
+	_numpad_calculateAbsolutePositioning = (grid) => {
+		let position = { top: 0, left: 0 };
+
+		if (jQuery.type(this.options.positionX) === 'number') {
 			position.left = this.options.positionX;
 		}
 		else if (this.options.positionX === 'left') {
-			position.left = ($(window).width() / 4) - (grid.outerWidth() / 2);
+			position.left = (jQuery(window).width() / 4) - (grid.outerWidth() / 2);
 		}
 		else if (this.options.positionX === 'right') {
-			position.left = ($(window).width() / 4 * 3) - (grid.outerWidth() / 2);
+			position.left = (jQuery(window).width() / 4 * 3) - (grid.outerWidth() / 2);
 		}
 		else if (this.options.positionX === 'center') {
-			position.left = ($(window).width() / 2) - (grid.outerWidth() / 2);
+			position.left = (jQuery(window).width() / 2) - (grid.outerWidth() / 2);
 		}
 
-		if ($.type(this.options.positionY) === 'number') {
+		if (jQuery.type(this.options.positionY) === 'number') {
 			position.top = this.options.positionY;
 		}
 		else if (this.options.positionY === 'top') {
-			position.top = ($(window).height() / 4) - (grid.outerHeight() / 2);
+			position.top = (jQuery(window).height() / 4) - (grid.outerHeight() / 2);
 		}
 		else if (this.options.positionY === 'bottom') {
-			position.top = ($(window).height() / 4 * 3) - (grid.outerHeight() / 2);
+			position.top = (jQuery(window).height() / 4 * 3) - (grid.outerHeight() / 2);
 		}
 		else if (this.options.positionY === 'middle') {
-			position.top = ($(window).height() / 2) - (grid.outerHeight() / 2);
+			position.top = (jQuery(window).height() / 2) - (grid.outerHeight() / 2);
 		}
-		
+
 		return position;
 	}
 
@@ -475,7 +475,7 @@ class JQueryNumpad {
 		const relativeOffset = this.options.positionRelativeOffset;
 		let position = { top: 0, left: 0 };
 
-		if ($.type(this.options.positionX) === 'number') {
+		if (jQuery.type(this.options.positionX) === 'number') {
 			position.left = target.offset().left + this.options.positionX;
 		}
 		else if (this.options.positionX === 'left') {
@@ -488,7 +488,7 @@ class JQueryNumpad {
 			position.left = (target.offset().left + target.outerWidth() / 2) - (grid.outerWidth() / 2);
 		}
 
-		if ($.type(this.options.positionY) === 'number') {
+		if (jQuery.type(this.options.positionY) === 'number') {
 			position.top = target.offset().top + this.options.positionY;
 		}
 		else if (this.options.positionY === 'top') {
@@ -504,174 +504,174 @@ class JQueryNumpad {
 		return position;
 	}
 
-   /**
-	* Makes an element draggable.
-	* @param {object} element - A jQuery object representing the element to drag around.
-	* @param {object} dragHandleElement - A jQuery object representing the element the user "grabs" to initiate dragging.
-	*/
-   static makeDraggable = (element, dragHandleElement) => {
-	   let start = {x: 0, y: 0};
-	   let delta = { x: 0, y: 0};
+	/**
+	 * Makes an element draggable.
+	 * @param {object} element - A jQuery object representing the element to drag around.
+	 * @param {object} dragHandleElement - A jQuery object representing the element the user "grabs" to initiate dragging.
+	 */
+	static makeDraggable = (element, dragHandleElement) => {
+		let start = { x: 0, y: 0 };
+		let delta = { x: 0, y: 0 };
 
-	   let startDragging = (e) => {
-		   e = e || window.event;
-		   e.preventDefault();
+		let startDragging = (e) => {
+			e = e || window.event;
+			e.preventDefault();
 
-		   start = {x: e.clientX, y: e.clientY};
-		   delta = { x: 0, y: 0};
+			start = { x: e.clientX, y: e.clientY };
+			delta = { x: 0, y: 0 };
 
-		   $(document).on('mouseup', stopDragging);
-		   $(document).on('mousemove', moveElementWithCursor);
+			jQuery(document).on('mouseup', stopDragging);
+			jQuery(document).on('mousemove', moveElementWithCursor);
 
-		   document.addEventListener('touchend', stopDragging, false);
-		   document.addEventListener('touchmove', moveElementWithTouch, false);
-	   }
-	 
-	   let moveElementWithCursor = (e) => {
-		   e = e || window.event;
-		   e.preventDefault();
+			document.addEventListener('touchend', stopDragging, false);
+			document.addEventListener('touchmove', moveElementWithTouch, false);
+		}
 
-		   delta.x = e.clientX - start.x;
-		   delta.y = e.clientY - start.y;
+		let moveElementWithCursor = (e) => {
+			e = e || window.event;
+			e.preventDefault();
 
-		   element.css({transform: `translate(${delta.x}px, ${delta.y}px)`});
-	   }
-	 
-	   let moveElementWithTouch = (e) => {
-		   e = e || window.event;
-		   e.preventDefault();
+			delta.x = e.clientX - start.x;
+			delta.y = e.clientY - start.y;
 
-		   delta.x = start.x - e.touches[0].pageX;
-		   delta.y = start.y - e.touches[0].pageY;
+			element.css({ transform: `translate(${delta.x}px, ${delta.y}px)` });
+		}
 
-		   start.x = e.touches[0].pageX;
-		   start.y = e.touches[0].pageY;
+		let moveElementWithTouch = (e) => {
+			e = e || window.event;
+			e.preventDefault();
 
-		   element.css({top: element.position().top - delta.y, left: element.position().left - delta.x});
-	   }
-	 
-	   let stopDragging = () => {
-		   $(document).off('mouseup');
-		   $(document).off('mousemove');
+			delta.x = start.x - e.touches[0].pageX;
+			delta.y = start.y - e.touches[0].pageY;
 
-		   document.removeEventListener('touchend', stopDragging);
-		   document.removeEventListener('touchmove', moveElementWithTouch);
+			start.x = e.touches[0].pageX;
+			start.y = e.touches[0].pageY;
 
-		   element.css('transform', ``);
-		   element.css({top: element.position().top + delta.y, left: element.position().left + delta.x});
-	   }		
-	   
-	   if (dragHandleElement && dragHandleElement.length > 0) {
-		   dragHandleElement.on('mousedown', startDragging);
-		   dragHandleElement.on('touchstart', startDragging);
-	   } else {
-		   element.on('mousedown', startDragging);
-		   element.addEventListener('touchstart', startDragging);
-	   }
-   }
+			element.css({ top: element.position().top - delta.y, left: element.position().left - delta.x });
+		}
 
-   static positionModes = {
-	   fixed: 'fixed',
-	   relative: 'relative',
-   }
+		let stopDragging = () => {
+			jQuery(document).off('mouseup');
+			jQuery(document).off('mousemove');
 
-   
-   static defaults = {
-	   /** @type {object} - A jQuery object representing the HTML element to append the numpad to.  If null, the numpad will be appended to the document body. */
-	   appendKeypadTo: null,
-	   
-	   /** @type {string} - The character used to indicate the separation between a number's whole and fractional parts. It should match what is expected for the locale of the website (',' in Germany, '.' in the United States, for example).*/
-	   decimalSeparator: '.',
+			document.removeEventListener('touchend', stopDragging);
+			document.removeEventListener('touchmove', moveElementWithTouch);
 
-	   /** @type {boolean} - Indicates whether the user should be able to drag the numpad around on the screen. Draggable if true, statically positioned if false.*/
-	   draggable: true,
+			element.css('transform', ``);
+			element.css({ top: element.position().top + delta.y, left: element.position().left + delta.x });
+		}
 
-	   
-	   /** @type {string} The template HTML for the function buttons.  Add CSS classes or styling to customize the appearance.*/
-	   html_button_functionButton: '<button></button>',
-	   
-	   /** @type {string} The template HTML for the number buttons.  Add CSS classes or styling to customize the appearance.*/
-	   html_button_numberButton: '<button></button>',
-	   
-	   /** @type {string} The template HTML for the background mask.  No background mask will appear if left as default.  With Bootstrap, `'<div class="modal-backdrop in"></div>'` turns it into a background mask.*/
-	   html_div_background: '<div></div>',
-	   
-	   /** @type {string} The template HTML for the display on the numpad.  Add CSS classes or styling to customize the appearance.*/
-	   html_input_display: '<input type="text"/>',
-	   
-	   /** @type {string} The template HTML for the header.  HTML element, `<Label>` is expected.  For example, `'<label>Input Field Title</label>'`*/
-	   html_label_headerContent: null,
-	   
-	   /** @type {string} The template HTML for the table which organizes all visible elements in the numpad.  Add CSS classes or styling to customize the appearance.*/
-	   html_table_mainLayout: '<table></table>',
-	   
-	   /** @type {string} The template HTML for the table cells which house the buttons.  Add CSS classes or styling to customize the appearance.*/
-	   html_td_mainLayoutButtonCell: '<td></td>',
-	   
-	   /** @type {string} The template HTML for the table cell which houses the display.  Add CSS classes or styling to customize the appearance.*/
-	   html_td_mainLayoutDisplayCell: '<td></td>',
-	   
-	   /** @type {string} The template HTML for the table cell which houses the header.  Add CSS classes or styling to customize the appearance.*/
-	   html_td_mainLayoutHeaderCell: '<td class="nmpd-table-header-cell"></td>',
-	   
-	   /** @type {string} The template HTML for the rows in the table.  Add CSS classes or styling to customize the appearance.*/
-	   html_tr_mainLayoutTableRow: '<tr></tr>',
-	   
+		if (dragHandleElement && dragHandleElement.length > 0) {
+			dragHandleElement.on('mousedown', startDragging);
+			dragHandleElement.on('touchstart', startDragging);
+		} else {
+			element.on('mousedown', startDragging);
+			element.addEventListener('touchstart', startDragging);
+		}
+	}
 
-	   /** @type {boolean} */
-	   isDecimalButtonVisible: true,
-	   
-	   /** @type {boolean} */
-	   isPlusMinusButtonVisible: true,
+	static positionModes = {
+		fixed: 'fixed',
+		relative: 'relative',
+	}
 
-	   /** @type {boolean} */
-	   isDisplayVisible: true,
 
-	   /** @type {boolean} - If true, only allows input which can be parsed as a number.  False allows values like '23.3.4-357'*/
-	   isRequiredNumeric: true,
-	   
-	   /** @type {string} - The event on which the numpad should be opened.*/
-	   openOnEvent: 'click',
-	   
-	   /** @type {string} - Must be one of `JQueryNumpad.positionModes`.  If 'fixed', will position the numpad relative to the document top, left.  If 'relative', will position the numpad relative to the target.*/
-	   position: JQueryNumpad.positionModes.fixed,
-	   
-	   /** @type {(string | number)} - May be 'left', 'right', 'center', or a number */
-	   positionX: 'center',
-	   
-	   /** @type {(string | number)} - May be 'top', 'bottom', 'middle', or a number */
-	   positionY: 'middle',
+	static defaults = {
+		/** @type {object} - A jQuery object representing the HTML element to append the numpad to.  If null, the numpad will be appended to the document body. */
+		appendKeypadTo: null,
 
-	   /** @type {number} - If `position = JQueryNumpad.positionModes.relative` and `positionX` or `positionY` is set with any of the qualitative (ex. 'top' or 'left') options, this is he distance the numpad will be shown from the target. */
-	   positionRelativeOffset: 5,
+		/** @type {string} - The character used to indicate the separation between a number's whole and fractional parts. It should match what is expected for the locale of the website (',' in Germany, '.' in the United States, for example).*/
+		decimalSeparator: '.',
 
-	   /** @type {object} The element which the numpad will set the value of.  If null, the target will be the object on which `.numpad()` was called.*/
-	   target: null,
-	   
+		/** @type {boolean} - Indicates whether the user should be able to drag the numpad around on the screen. Draggable if true, statically positioned if false.*/
+		draggable: true,
 
-	   /** The text for the Cancel button. */
-	   textCancel: 'Cancel',
 
-	   /** The text for the Clear button. */
-	   textClear: 'Clear',
-	   
-	   /** The text for the Del button. */
-	   textDelete: 'Del',
-	   
-	   /** The text for the Done button. */
-	   textDone: 'Done',
-	   
-	   
-	   /** Triggers immediately after the numpad is created. The first parameter is the triggered event args.  The second parameter is the numpad as a jQuery object.*/
-	   onKeypadCreate: () => {},
+		/** @type {string} The template HTML for the function buttons.  Add CSS classes or styling to customize the appearance.*/
+		html_button_functionButton: '<button></button>',
 
-	   /** Triggers immediately after the numpad is opened.*/
-	   onKeypadOpen: () => {},
+		/** @type {string} The template HTML for the number buttons.  Add CSS classes or styling to customize the appearance.*/
+		html_button_numberButton: '<button></button>',
 
-	   /** Triggers immediately after the numpad is closed, regardless of how the user closed it.*/
-	   onKeypadClose: () => {},
-	   
-	   /** Triggers immediately after the numpad's value is changed. @param {object} event is the triggered event. @param {string} value is the new value after the change.*/
-	   onChange: (event) => {},
-   };
+		/** @type {string} The template HTML for the background mask.  No background mask will appear if left as default.  With Bootstrap, `'<div class="modal-backdrop in"></div>'` turns it into a background mask.*/
+		html_div_background: '<div></div>',
+
+		/** @type {string} The template HTML for the display on the numpad.  Add CSS classes or styling to customize the appearance.*/
+		html_input_display: '<input type="text"/>',
+
+		/** @type {string} The template HTML for the header.  HTML element, `<Label>` is expected.  For example, `'<label>Input Field Title</label>'`*/
+		html_label_headerContent: null,
+
+		/** @type {string} The template HTML for the table which organizes all visible elements in the numpad.  Add CSS classes or styling to customize the appearance.*/
+		html_table_mainLayout: '<table></table>',
+
+		/** @type {string} The template HTML for the table cells which house the buttons.  Add CSS classes or styling to customize the appearance.*/
+		html_td_mainLayoutButtonCell: '<td></td>',
+
+		/** @type {string} The template HTML for the table cell which houses the display.  Add CSS classes or styling to customize the appearance.*/
+		html_td_mainLayoutDisplayCell: '<td></td>',
+
+		/** @type {string} The template HTML for the table cell which houses the header.  Add CSS classes or styling to customize the appearance.*/
+		html_td_mainLayoutHeaderCell: '<td class="nmpd-table-header-cell"></td>',
+
+		/** @type {string} The template HTML for the rows in the table.  Add CSS classes or styling to customize the appearance.*/
+		html_tr_mainLayoutTableRow: '<tr></tr>',
+
+
+		/** @type {boolean} */
+		isDecimalButtonVisible: true,
+
+		/** @type {boolean} */
+		isPlusMinusButtonVisible: true,
+
+		/** @type {boolean} */
+		isDisplayVisible: true,
+
+		/** @type {boolean} - If true, only allows input which can be parsed as a number.  False allows values like '23.3.4-357'*/
+		isRequiredNumeric: true,
+
+		/** @type {string} - The event on which the numpad should be opened.*/
+		openOnEvent: 'click',
+
+		/** @type {string} - Must be one of `JQueryNumpad.positionModes`.  If 'fixed', will position the numpad relative to the document top, left.  If 'relative', will position the numpad relative to the target.*/
+		position: JQueryNumpad.positionModes.fixed,
+
+		/** @type {(string | number)} - May be 'left', 'right', 'center', or a number */
+		positionX: 'center',
+
+		/** @type {(string | number)} - May be 'top', 'bottom', 'middle', or a number */
+		positionY: 'middle',
+
+		/** @type {number} - If `position = JQueryNumpad.positionModes.relative` and `positionX` or `positionY` is set with any of the qualitative (ex. 'top' or 'left') options, this is he distance the numpad will be shown from the target. */
+		positionRelativeOffset: 5,
+
+		/** @type {object} The element which the numpad will set the value of.  If null, the target will be the object on which `.numpad()` was called.*/
+		target: null,
+
+
+		/** The text for the Cancel button. */
+		textCancel: 'Cancel',
+
+		/** The text for the Clear button. */
+		textClear: 'Clear',
+
+		/** The text for the Del button. */
+		textDelete: 'Del',
+
+		/** The text for the Done button. */
+		textDone: 'Done',
+
+
+		/** Triggers immediately after the numpad is created. The first parameter is the triggered event args.  The second parameter is the numpad as a jQuery object.*/
+		onKeypadCreate: () => { },
+
+		/** Triggers immediately after the numpad is opened.*/
+		onKeypadOpen: () => { },
+
+		/** Triggers immediately after the numpad is closed, regardless of how the user closed it.*/
+		onKeypadClose: () => { },
+
+		/** Triggers immediately after the numpad's value is changed. @param {object} event is the triggered event. @param {string} value is the new value after the change.*/
+		onChange: (event) => { },
+	};
 }
