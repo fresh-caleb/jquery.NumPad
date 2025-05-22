@@ -2,7 +2,7 @@
   This project was forked from https://github.com/FeIronMonkey/jQuery.NumPad2
   with the license shown below.
 
-  The fork's home is https://github.com/fresh-caleb/fcs.NumPad,
+  The fork's home is https://github.com/fresh-caleb/jQuery.NumPad,
   with the same license.
 
   ----------------------------------------------------------------------------------
@@ -42,7 +42,7 @@
  * http://www.opensource.org/licenses/mit-license.php
  *
  * Project home:
- * https://github.com/fresh-caleb/fcs.NumPad
+ * https://github.com/fresh-caleb/jQuery.NumPad
  *
  * Version: 1.4
  *
