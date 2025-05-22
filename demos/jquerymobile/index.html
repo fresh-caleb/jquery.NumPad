@@ -11,16 +11,21 @@
 
 		<script src="../../jquery.numpad.js"></script>
 		<link rel="stylesheet" href="../../jquery.numpad.css">
-		
+
 		<script type="text/javascript">
 			// Set NumPad defaults for jQuery mobile. 
 			// These defaults will be applied to all NumPads within this document!
+			JQueryNumpad.defaults.html_label_headerContent = null;
+			JQueryNumpad.defaults.html_td_mainLayoutButtonCell = '<td></td>';
+			JQueryNumpad.defaults.html_td_mainLayoutDisplayCell = '<td></td>';
+			JQueryNumpad.defaults.html_td_mainLayoutHeaderCell = '<td class="nmpd-table-header-cell"></td>';
+			JQueryNumpad.defaults.html_tr_mainLayoutTableRow = '<tr></tr>';
 			JQueryNumpad.defaults.html_table_mainLayout = '<table class="ui-bar-a"></table>';
 			JQueryNumpad.defaults.html_div_background = '<div class="ui-popup-screen ui-overlay-a"></div>';
 			JQueryNumpad.defaults.html_input_display = '<input data-theme="b" type="text" />';
 			JQueryNumpad.defaults.html_button_numberButton =  '<a data-role="button" data-theme="b"></a>';
 			JQueryNumpad.defaults.html_button_functionButton = '<a data-role="button" data-theme="a"></a>';
-			JQueryNumpad.defaults.onKeypadCreate = function(){$(this).enhanceWithin();};
+			JQueryNumpad.defaults.onKeypadCreate = function(self){$(self).enhanceWithin();};
 			
 			// Instantiate NumPad once the page is ready to be shown
 			$(document).on('pageshow', function(){
@@ -28,7 +33,7 @@
 				$('#password').numpad({
 					html_input_display: '<input data-theme="b" type="password" />',
 					isPlusMinusButtonVisible: false,
-					isDecimalButtonVisible: false,	
+					isDecimalButtonVisible: false,
 				});
 				$('#numpadButton-btn').numpad({
 					target: $('#numpadButton'),
@@ -51,36 +56,36 @@
 			<h2>Numeric keypad for jQuery mobile</h2>
 		</div><!-- /header -->
 
-    <div role="main" class="ui-content jqm-content">
-    	<div class="ui-body ui-body-a ui-corner-all">
+	<div role="main" class="ui-content jqm-content">
+		<div class="ui-body ui-body-a ui-corner-all">
           <p>jQuery.NumPad is a touch optimized on-screen numeric keypad, which can be used within any web UIs based on jQuery. This page shows how the NumPad can be integrated with jQuery mobile. It is even compatible with ThemeRoller!</p>
       	</div>
 		<h2>Numeric keypads for input fields</h2>
-        <div data-demo-html="true">
-             <label for="text-basic">Simple input (click to toggle numpad)</label>
-             <input type="text" name="text-basic" id="text-basic" value="1">
-        </div><!-- /demo-html -->
-        
-        <div data-demo-html="true">
-             <label for="password">Password input for PIN codes (click to toggle numpad - note, that sensitive data is hidden at all times!)</label>
-             <input type="password" name="password" id="password" value="">
-        </div><!-- /demo-html -->
+		<div data-demo-html="true">
+			<label for="text-basic">Simple input (click to toggle numpad)</label>
+			<input type="text" name="text-basic" id="text-basic" value="1">
+		</div><!-- /demo-html -->
 
-        <div>
+		<div data-demo-html="true">
+			<label for="password">Password input for PIN codes (click to toggle numpad - note, that sensitive data is hidden at all times!)</label>
+			<input type="password" name="password" id="password" value="">
+		</div><!-- /demo-html -->
+
+		<div>
 			<label for="numpadButton">Input with extra numpad button (the input is directly editable, while the button shows the NumPad). Additionally this one has a maxlength="4" and an onChange event handler.</label>
 			<div data-role="controlgroup" data-type="horizontal">
 				<input type="text" id="numpadButton" data-wrapper-class="controlgroup-textinput ui-btn" value="2" maxlength="4" onchange="alert('Value changed to ' + $(this).val());">
 				<button id="numpadButton-btn" class="ui-btn ui-icon-grid ui-btn-icon-notext ui-alt-icon ui-nodisc-icon">&nbsp;</button>
 			</div>
-        </div><!-- /demo-html -->
+		</div><!-- /demo-html -->
 		<h2>Numeric keypad for a div element</h2>
 		<div data-demo-html="true">
-             <div id="numpad4div">3</div>
-        </div><!-- /demo-html -->
+			<div id="numpad4div">3</div>
+		</div><!-- /demo-html -->
 		<h2>Numeric keypad for table column</h2>
 		<p>Click on a cell of the quantity column to get a numeric keypad for editing the quantity.</p>
 		<div data-demo-html="true">
-             <table id="numpad4column" data-role="table" class="ui-responsive">
+			<table id="numpad4column" data-role="table" class="ui-responsive">
 				<thead>
 					<tr>
 						<th>Product</th>
@@ -106,7 +111,7 @@
 					</tr>
 				</tbody>
 			 </table>
-        </div><!-- /demo-html -->
+		</div><!-- /demo-html -->
 	</div>
 
 
