@@ -1,16 +1,17 @@
 /*
-	This project was forked from https://github.com/kabachello/jQuery.NumPad
-		with the license shown below.
+    This project was forked from https://github.com/FeIronMonkey/jQuery.NumPad2
+    with the license shown below.
 
-	The fork's home is https://github.com/FeIronMonkey/jQuery.NumPad, 
-	with the same license.
+    The fork's home is https://github.com/fresh-caleb/fcs.NumPad,
+    with the same license.
 
     ----------------------------------------------------------------------------------
-    
+
     The MIT License (MIT)
 
-	Original work: Copyright (c) 2014-2015 almasaeed2010
-	Derived work: Copyright (c) 2021 FeIronMonkey
+    Original work: Copyright (c) 2014-2015 almasaeed2010
+    Derived work: Copyright (c) 2021 FeIronMonkey
+                  Copyright (c) 2025 Caleb White
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of
     this software and associated documentation files (the "Software"), to deal in
@@ -30,7 +31,6 @@
     CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-
 .nmpd-wrapper {
     display: none;
     z-index: 2147483647;
@@ -42,22 +42,22 @@
 }
 
 .nmpd-grid {
-    position:absolute; 
-    left:50px; 
-    top:50px; 
-    z-index:5000; 
-    padding:10px; 
+    position: absolute;
+    left: 50px;
+    top: 50px;
+    z-index: 5000;
+    padding: 10px;
     width: initial;
 }
 
 .nmpd-overlay {
-    z-index:4999;
+    z-index: 4999;
 }
 
 input.nmpd-display {
     text-align: right;
 }
 
-.nmpd-table-header-cell{
+.nmpd-table-header-cell {
     border-bottom: 1px solid #ddd;
 }

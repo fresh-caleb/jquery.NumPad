@@ -46,5 +46,8 @@ Temporary Items
 .project
 .settings
 
+# IntelliJ files and directories
+.idea/
+
 # npm files
 npm-debug.log
