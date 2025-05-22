@@ -363,7 +363,7 @@ JQueryNumpad.builder = class {
       maxLength = parseInt(maxLengthAttribute);
     }
 
-    return value.toString().substr(0, maxLength)
+    return value.toString().substring(0, maxLength)
   }
 
   _numpad_accept = (target) => {
@@ -603,7 +603,7 @@ JQueryNumpad.defaults = {
   html_input_display: '<input type="text" class="text_field apex-item-text qtyInput" />',
 
   /** @type {string} The template HTML for the header.  HTML element, `<Label>` is expected.  For example, `'<label>Input Field Title</label>'`*/
-  html_label_headerContent: '<span aria-hidden="true" class="title-icon fa-solid fa-braille fa-anim-vertical-shake fa-rotate-90"></span><button type="button" class="ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close" title="Close" aria-label="Close"><span class="ui-button-icon ui-icon ui-icon-closethick"></span></button>',
+  html_label_headerContent: '<span aria-hidden="true" class="title-icon fa fa-braille fa-anim-vertical-shake fa-rotate-90"></span><button type="button" class="ui-button ui-corner-all ui-widget ui-button-icon-only ui-dialog-titlebar-close" title="Close" aria-label="Close"><span class="ui-button-icon ui-icon ui-icon-closethick"></span></button>',
 
   /** @type {string} The template HTML for the table which organizes all visible elements in the numpad.  Add CSS classes or styling to customize the appearance.*/
   html_table_mainLayout: '<table role="dialog" class="table ui-dialog ui-draggable ui-widget ui-widget-content ui-dialog--apex"><tbody class="ui-dialog-content ui-widget-content js-dialogReady"></tbody></table>',
