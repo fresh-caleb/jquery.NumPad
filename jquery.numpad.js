@@ -49,27 +49,27 @@
  */
 (function ($) {
   /**
-   * @function numpad
-   * @param {object} options - The non-default options for the numpad. Instance members should correlate with members of `JQueryNumpad.defaults`. Supplied values override the defaults. Undefined values are ignored.
+   * @function fcsnumpad
+   * @param {object} options - The non-default options for the numpad. Instance members should correlate with members of `FCSNumpad.defaults`. Supplied values override the defaults. Undefined values are ignored.
    */
-  $.fn.numpad = function (options) {
-    options = $.extend({}, JQueryNumpad.defaults, options);
+  $.fn.fcsnumpad = function (options) {
+    options = $.extend({}, FCSNumpad.defaults, options);
 
     // Create a numpad. One for all elements in this jQuery selector.
-    // Since numpad() can be called on multiple elements on one page, each call will create a unique numpad id.
+    // Since fcsnumpad() can be called on multiple elements on one page, each call will create a unique numpad id.
     let id;
     let numberPadElement = {};
 
-    // "this" is a jQuery selecton, which might contain many matches.
+    // "this" is a jQuery selection, which might contain many matches.
     return this.each((_, numpadTarget) => {
       if ($(`#${id}`).length === 0) {
-        numberPadElement = new JQueryNumpad.builder(options);
+        numberPadElement = new FCSNumpad.builder(options);
         id = numberPadElement.numpad_id;
       }
 
-      $.data(numpadTarget, 'numpad', numberPadElement);
+      $.data(numpadTarget, 'fcsnumpad', numberPadElement);
 
-      $(numpadTarget).attr('readonly', true).attr('data-numpad', id).addClass('nmpd-target');
+      $(numpadTarget).attr('readonly', true).attr('data-fcsnumpad', id).addClass('nmpd-target');
 
       $(numpadTarget).bind(options.openOnEvent, () => {
         numberPadElement._numpad_open(options.target
@@ -79,46 +79,46 @@
     });
   };
 
-  $.fn.numpad_open = function (initialValue) {
-    this._numpad_getNumpadElement()._numpad_open(this.first(), initialValue);
+  $.fn.fcsnumpad_open = function (initialValue) {
+    this._fcsnumpad_getNumpadElement()._numpad_open(this.first(), initialValue);
     return this;
   }
 
-  $.fn.numpad_close = function () {
-    this._numpad_getNumpadElement()._numpad_close();
+  $.fn.fcsnumpad_close = function () {
+    this._fcsnumpad_getNumpadElement()._numpad_close();
     return this;
   }
 
-  $.fn.numpad_accept = function () {
-    this._numpad_getNumpadElement()._numpad_accept(this.first());
+  $.fn.fcsnumpad_accept = function () {
+    this._fcsnumpad_getNumpadElement()._numpad_accept(this.first());
     return this;
   }
 
-  $.fn.numpad_unassignNumpadsFromElement = function () {
+  $.fn.fcsnumpad_unassignNumpadsFromElement = function () {
     return this.each((_, numpadTargetAsDomElement) => {
       let numpadTarget = $(numpadTargetAsDomElement)
 
-      if (numpadTarget.attr('data-numpad')) {
-        numpadTarget.removeAttr('data-numpad', '');
+      if (numpadTarget.attr('data-fcsnumpad')) {
+        numpadTarget.removeAttr('data-fcsnumpad', '');
         numpadTarget.removeClass('nmpd-target');
-        numpadTarget.removeData('numpad');
+        numpadTarget.removeData('fcsnumpad');
       }
     });
   }
 
   $.fn.numpad_deleteNumpadFromDom = function () {
     this.each((_, numpadTarget) => {
-      let numpad = $.data(numpadTarget, 'numpad');
+      let numpad = $.data(numpadTarget, 'fcsnumpad');
       if (numpad) {
         numpad.remove();
       }
     });
 
-    return this.numpad_unassignNumpadsFromElement();
+    return this.fcsnumpad_unassignNumpadsFromElement();
   }
 
-  $.fn._numpad_getNumpadElement = function () {
-    let numberPadElement = $.data(this[0], 'numpad');
+  $.fn._fcsnumpad_getNumpadElement = function () {
+    let numberPadElement = $.data(this[0], 'fcsnumpad');
 
     if (!numberPadElement) {
       throw 'Cannot act on a numpad prior to initialization!';
@@ -134,16 +134,16 @@
  * conflicting names may be overwritten
  * many of these functions are written as if the constructed object is merged with a jquery object (using find() and such)
  */
-function JQueryNumpad() {
+function FCSNumpad() {
   // This is here to keep APEX happy.
 
-  // Construct the class with `new JQueryNumpad.builder(options)`.
+  // Construct the class with `new FCSNumpad.builder(options)`.
 }
 
-JQueryNumpad.builder = class {
+FCSNumpad.builder = class {
   constructor(options) {
     this.options = options;
-    this.numpad_id = `nmpd${JQueryNumpad._numpadIdCounter++}`;
+    this.numpad_id = `nmpd${FCSNumpad._numpadIdCounter++}`;
     this.first_change = true;
 
     let numberPadElement = this._numpad_constructNewNumberPadElement(this.numpad_id, this.options);
@@ -153,10 +153,10 @@ JQueryNumpad.builder = class {
     this._numpad_initialize();
 
     if (this.options.draggable) {
-      JQueryNumpad.makeDraggable(this.find('.nmpd-grid'), this.find('.numpad-header'));
+      FCSNumpad.makeDraggable(this.find('.nmpd-grid'), this.find('.numpad-header'));
     }
 
-    this.trigger('numpad.create', [this]);
+    this.trigger('fcsnumpad.create', [this]);
   }
 
   _numpad_initialize = () => {
@@ -272,22 +272,22 @@ JQueryNumpad.builder = class {
 
   _numpad_registerEvents = () => {
     if (this.options.onKeypadCreate) {
-      this.on('numpad.create', () => this.options.onKeypadCreate(this));
+      this.on('fcsnumpad.create', () => this.options.onKeypadCreate(this));
     }
 
     if (this.options.onKeypadOpen) {
-      this.on('numpad.open', this.options.onKeypadOpen);
+      this.on('fcsnumpad.open', this.options.onKeypadOpen);
     }
 
     if (this.options.onKeypadClose) {
-      this.on('numpad.close', args => {
+      this.on('fcsnumpad.close', args => {
         this.first_change = true;
         return this.options.onKeypadClose(args);
       });
     }
 
     if (this.options.onChange) {
-      this.on('numpad.change', this.options.onChange);
+      this.on('fcsnumpad.change', this.options.onChange);
     }
   }
 
@@ -333,7 +333,7 @@ JQueryNumpad.builder = class {
 
     this.numpad_display.val(value);
     this.find('.dirty').val('1');
-    this.trigger('numpad.change', [value]);
+    this.trigger('fcsnumpad.change', [value]);
 
     return this;
   };
@@ -387,11 +387,11 @@ JQueryNumpad.builder = class {
 
   _numpad_close = () => {
     this.hide();
-    this.trigger('numpad.close');
+    this.trigger('fcsnumpad.close');
   }
 
   _numpad_open = (target, initialValue) => {
-    // Use nmpd.display.val to avoid triggering numpad.change for the initial value
+    // Use nmpd.display.val to avoid triggering fcsnumpad.change for the initial value
     if (initialValue) {
       if (!this._numpad_isValueNumeric(initialValue)) {
         console.error('The initialValue is not numeric.  Unable to set value.  It must be numeric.');
@@ -417,13 +417,13 @@ JQueryNumpad.builder = class {
     jQuery('#' + this.numpad_id + ' .dirty').val(0);
 
     this.show()
-    JQueryNumpad.cursorFocus(this.find('.cancel'));
+    FCSNumpad.cursorFocus(this.find('.cancel'));
     this._numpad_positionElement(target);
 
     jQuery('#' + this.numpad_id + ' .done').off('click');
     jQuery('#' + this.numpad_id + ' .done').one('click', () => { this._numpad_accept(target); });
 
-    this.trigger('numpad.open');
+    this.trigger('fcsnumpad.open');
 
     return this;
   };
@@ -500,9 +500,9 @@ JQueryNumpad.builder = class {
 
 };
 
-JQueryNumpad._numpadIdCounter = 0;
+FCSNumpad._numpadIdCounter = 0;
 
-JQueryNumpad.cursorFocus = (elem) => {
+FCSNumpad.cursorFocus = (elem) => {
   var x = window.scrollX, y = window.scrollY;
   elem.focus();
   window.scrollTo(x, y);
@@ -513,7 +513,7 @@ JQueryNumpad.cursorFocus = (elem) => {
  * @param {object} element - A jQuery object representing the element to drag around.
  * @param {object} dragHandleElement - A jQuery object representing the element the user "grabs" to initiate dragging.
  */
-JQueryNumpad.makeDraggable = (element, dragHandleElement) => {
+FCSNumpad.makeDraggable = (element, dragHandleElement) => {
   let start = { x: 0, y: 0 };
   let delta = { x: 0, y: 0 };
 
@@ -574,12 +574,12 @@ JQueryNumpad.makeDraggable = (element, dragHandleElement) => {
   }
 }
 
-JQueryNumpad.positionModes = {
+FCSNumpad.positionModes = {
   fixed: 'fixed',
   relative: 'relative',
 }
 
-JQueryNumpad.defaults = {
+FCSNumpad.defaults = {
   /** @type {object} - A jQuery object representing the HTML element to append the numpad to.  If null, the numpad will be appended to the document body. */
   appendKeypadTo: null,
 
@@ -636,8 +636,8 @@ JQueryNumpad.defaults = {
   /** @type {string} - The event on which the numpad should be opened.*/
   openOnEvent: 'click',
 
-  /** @type {string} - Must be one of `JQueryNumpad.positionModes`.  If 'fixed', will position the numpad relative to the document top, left.  If 'relative', will position the numpad relative to the target.*/
-  position: JQueryNumpad.positionModes.fixed,
+  /** @type {string} - Must be one of `FCSNumpad.positionModes`.  If 'fixed', will position the numpad relative to the document top, left.  If 'relative', will position the numpad relative to the target.*/
+  position: FCSNumpad.positionModes.fixed,
 
   /** @type {(string | number)} - May be 'left', 'right', 'center', or a number */
   positionX: 'center',
@@ -645,10 +645,10 @@ JQueryNumpad.defaults = {
   /** @type {(string | number)} - May be 'top', 'bottom', 'middle', or a number */
   positionY: 'middle',
 
-  /** @type {number} - If `position = JQueryNumpad.positionModes.relative` and `positionX` or `positionY` is set with any of the qualitative (ex. 'top' or 'left') options, this is he distance the numpad will be shown from the target. */
+  /** @type {number} - If `position = FCSNumpad.positionModes.relative` and `positionX` or `positionY` is set with any of the qualitative (ex. 'top' or 'left') options, this is he distance the numpad will be shown from the target. */
   positionRelativeOffset: 5,
 
-  /** @type {object} The element which the numpad will set the value of.  If null, the target will be the object on which `.numpad()` was called.*/
+  /** @type {object} The element which the numpad will set the value of.  If null, the target will be the object on which `.fcsnumpad()` was called.*/
   target: null,
 
 

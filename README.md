@@ -23,7 +23,7 @@ of the code does not need comments.
 
 ```javascript
 function ($) {
-  $('selector1').numpad();
+  $('selector1').fcsnumpad();
 }
 ```
 
